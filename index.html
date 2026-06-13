@@ -126,6 +126,13 @@
   .hpfill{height:100%;width:100%;background:linear-gradient(#5dff5d,#1fc01f);
     transition:width .2s;border-radius:7px;}
   .hpfill.low{background:linear-gradient(#ff6b6b,#c01f1f);}
+  .ultbar{height:min(2.4vw,12px);width:100%;min-width:120px;margin-top:4px;background:#201021;border:2px solid #000;border-radius:8px;overflow:hidden;box-shadow:inset 0 1px 0 #ffffff20;}
+  .ultfill{height:100%;width:0%;background:linear-gradient(#ffe66d,#b45cff);transition:width .18s;border-radius:6px;}
+  .ultfill.ready{background:linear-gradient(#ffffff,#ffce3a,#ff54e1);animation:ultPulse .55s infinite alternate;}
+  .ulttxt{font-size:min(2.7vw,12px);color:#fff;text-shadow:1px 1px 0 #000;margin-top:1px;line-height:1;}
+  @keyframes ultPulse{from{filter:brightness(1);}to{filter:brightness(1.7);}}
+  .ultFlash{animation:ultFlash .45s ease-out 3;}
+  @keyframes ultFlash{50%{filter:brightness(2.1) saturate(1.8) drop-shadow(0 0 10px #ffce3a);}}
   #timer{color:#fff;font-size:min(7vw,34px);font-weight:bold;text-shadow:2px 2px 0 #000;
     background:#0007;border-radius:10px;padding:2px 14px;min-width:54px;text-align:center;}
   #roundPips,#roundPips2{display:flex;gap:4px;margin-top:4px;}
@@ -452,6 +459,8 @@
         <div class="hpwrap">
           <div class="hpname" id="p1name">Oyuncu</div>
           <div class="hpbar"><div class="hpfill" id="p1hp"></div></div>
+          <div class="ultbar"><div class="ultfill" id="p1ult"></div></div>
+          <div class="ulttxt" id="p1ulttxt">ULT 0%</div>
           <div id="roundPips" class="pips1"></div>
         </div>
         <div style="text-align:center">
@@ -460,6 +469,8 @@
         <div class="hpwrap r">
           <div class="hpname" id="p2name">Rakip</div>
           <div class="hpbar"><div class="hpfill" id="p2hp"></div></div>
+          <div class="ultbar"><div class="ultfill" id="p2ult"></div></div>
+          <div class="ulttxt" id="p2ulttxt">ULT 0%</div>
           <div id="roundPips2" class="pips2" style="justify-content:flex-end"></div>
         </div>
       </div>
@@ -475,6 +486,7 @@
       </div>
       <div class="acts">
         <div class="tbtn" data-k="block">🛡</div>
+        <div class="tbtn" data-k="ultimate">ULT</div>
         <div class="tbtn" data-k="jump">⤒</div>
         <div class="tbtn big" data-k="kick">🦵</div>
         <div class="tbtn big" data-k="punch">👊</div>
@@ -491,6 +503,7 @@
         </div>
         <div class="mpRow">
           <div class="tbtn" data-player="p1" data-k="block">🛡</div>
+          <div class="tbtn" data-player="p1" data-k="ultimate">ULT</div>
           <div class="tbtn" data-player="p1" data-k="jump">⤒</div>
           <div class="tbtn big" data-player="p1" data-k="kick">🦵</div>
           <div class="tbtn big" data-player="p1" data-k="punch">👊</div>
@@ -505,6 +518,7 @@
         </div>
         <div class="mpRow">
           <div class="tbtn" data-player="p2" data-k="block">🛡</div>
+          <div class="tbtn" data-player="p2" data-k="ultimate">ULT</div>
           <div class="tbtn" data-player="p2" data-k="jump">⤒</div>
           <div class="tbtn big" data-player="p2" data-k="kick">🦵</div>
           <div class="tbtn big" data-player="p2" data-k="punch">👊</div>
@@ -517,7 +531,7 @@
   <div id="howToScreen" class="screen menuScreen">
     <h2>Nasıl Oynanır?</h2>
     <div class="menuPanel">
-      <p><b>Görev:</b> Sınıftaki arkadaşlarla sırayla kapış ve finali gör.</p>
+      <p><b>Görev:</b> Sınıftaki arkadaşlarla sırayla kapış, Son Teneffüs Kapışması'nda iki rakibi art arda yen ve finali gör.</p>
       <p><b>Hareket:</b> ← → ile yürü, ↑ ile zıpla, ↓ ile eğil.</p>
       <p><b>Saldırı:</b> Z yumruk, X tekme, C blok.</p>
       <p><b>Zorluk:</b> Ana ekrandan Kolay, Orta veya Zor seçebilirsin.</p>
@@ -593,7 +607,7 @@ const DIFFICULTY = {
   easy:      {label:'Kolay',  note:'Kolay: rakip daha az saldırır ve daha az hasar verir', pause:0.018, move:2.45, attack:0.66, block:0.55, damage:0.58, cooldown:64, jump:0.0007},
   normal:    {label:'Orta',   note:'Orta: dengeli mücadele', pause:0.010, move:2.8,  attack:1.00, block:1.00, damage:0.68, cooldown:54, jump:0.0010},
   hard:      {label:'Zor',    note:'Zor: rakip daha agresif, daha hızlı ve daha iyi blok yapar', pause:0.005, move:3.25, attack:1.35, block:1.45, damage:0.82, cooldown:43, jump:0.0015},
-  nightmare: {label:'Kabus',  note:'Kabus: gizli zorluk! Rakip acımasız: çok hızlı yaklaşır, sık saldırır, iyi blok yapar ve sert vurur', pause:0.000, move:5.15, attack:3.45, block:4.20, damage:1.55, cooldown:16, jump:0.0045}
+  nightmare: {label:'Kabus',  note:'Kabus: gizli zorluk! Rakip çok hızlı ve saldırgan; artık daha az blok yapar ama baskısı yüksektir', pause:0.000, move:5.15, attack:3.65, block:2.05, damage:1.55, cooldown:15, jump:0.0045}
 };
 const DODGE_CHANCE = 0.10;      // Hem oyuncu hem rakip için %10 saldırıdan sıyrılma
 const DODGE_PITY_AFTER = 9;     // 9 başarısız sıyrılma denemesinden sonra sonraki uygun vuruşta sıyrılma garantisi
@@ -674,8 +688,8 @@ function setGameMode(mode){
   document.querySelectorAll('.modeBtn').forEach(b=>b.classList.toggle('sel', b.dataset.mode===mode));
   const note=document.getElementById('controlsNote');
   if(note) note.textContent = mode==='local'
-    ? '2 kişilik: P1 = WASD + F/G/H, P2 = Oklar + J/K/L. Mobilde tek kişilik önerilir.'
-    : 'Tek kişilik: ok tuşları veya WASD; J/K/L saldırı. ↓+Z/↓+X ve zıplarken Z/X özel hareket yapar.';
+    ? '2 kişilik: P1 = WASD + F/G/H + R, P2 = Oklar + J/K/L + O.'
+    : 'Tek kişilik: ok tuşları veya WASD; Z/X/C saldırı. V ultimate. ↓+Z/↓+X ve zıplarken Z/X özel hareket yapar.';
   const diffBox=document.querySelector('.difficultyBox');
   if(diffBox) diffBox.style.display = mode==='local' ? 'none' : '';
   if(document.getElementById('selectScreen')?.classList.contains('active')) buildGrid();
@@ -693,9 +707,12 @@ function fighterStat(f,k,base=1){
   if(!f || !f.char || !f.char.stats) return base;
   const stats=f.char.stats;
   if(typeof stats[k]==='number') return stats[k];
+  let value=base;
   // Yeni sade sistemde Şans, hem sıyrılma hem kritik için kullanılır.
-  if((k==='dodge' || k==='crit') && typeof stats.luck==='number') return stats.luck;
-  return base;
+  if((k==='dodge' || k==='crit') && typeof stats.luck==='number') value=stats.luck;
+  if(k==='power' && f.ultPowerUntil && performance.now()<f.ultPowerUntil) value*=1.5;
+  if((k==='dodge' || k==='crit') && f.ultLuckUntil && performance.now()<f.ultLuckUntil) value=Math.min(value*3,0.35);
+  return value;
 }
 
 function buildGrid(){
@@ -831,10 +848,10 @@ function fighterSVG(char, facing){
 let F={}; // fight state
 const ARENA_W=()=>document.getElementById('arena').clientWidth;
 const KEYS={}, KEYS2={};
-const SINGLEMAP={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'jump',ArrowDown:'crouch',KeyZ:'punch',KeyX:'kick',KeyC:'block',
+const SINGLEMAP={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'jump',ArrowDown:'crouch',KeyZ:'punch',KeyX:'kick',KeyC:'block',KeyV:'ultimate',
             KeyA:'left',KeyD:'right',KeyW:'jump',KeyS:'crouch',Space:'jump'};
-const P1MAP={KeyA:'left',KeyD:'right',KeyW:'jump',KeyS:'crouch',KeyF:'punch',KeyG:'kick',KeyH:'block'};
-const P2MAP={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'jump',ArrowDown:'crouch',KeyJ:'punch',KeyK:'kick',KeyL:'block'};
+const P1MAP={KeyA:'left',KeyD:'right',KeyW:'jump',KeyS:'crouch',KeyF:'punch',KeyG:'kick',KeyH:'block',KeyR:'ultimate'};
+const P2MAP={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'jump',ArrowDown:'crouch',KeyJ:'punch',KeyK:'kick',KeyL:'block',KeyO:'ultimate'};
 
 function makeFighter(char, x, facing, isP1){
   const el=document.createElement('div');
@@ -846,7 +863,7 @@ function makeFighter(char, x, facing, isP1){
   const maxHp = (char.stats && char.stats.hp) ? char.stats.hp : 100;
   return {char,el,x,facing,vy:0,y:0,hp:maxHp,maxHp,
     attacking:false,blocking:false,crouching:false,hitlock:0,atkCd:0,onGround:true,isP1,
-    dodgeMisses:0, state:'idle'};
+    dodgeMisses:0, ult:0, ultUsed:false, lowHpUltGiven:false, isAssist:false, state:'idle'};
 }
 
 let pad={left:false,right:false}; // touch hold
@@ -885,6 +902,12 @@ function clearInputState(){
   [KEYS,KEYS2].forEach(obj=>Object.keys(obj).forEach(k=>obj[k]=false));
   pad.left=false; pad.right=false; pad2.left=false; pad2.right=false;
 }
+
+function pickFinalChallengeOpponents(){
+  const pool=CHARS.filter(c=>c.id!==selected.id);
+  const shuffled=[...pool].sort(()=>Math.random()-0.5);
+  return shuffled.slice(0,2);
+}
 function startFight(){
   clearInputState();
   if(gameMode==='local'){
@@ -892,8 +915,8 @@ function startFight(){
     F={mode:'local',p1char:selectedP1,p2char:selectedP2,round:1,wins1:0,wins2:0,boss:false,difficulty:'local'};
   }else{
     if(!selected) return;
-    const campaign=CHARS.filter(c=>c.id!==selected.id); // boss öncesi herkesle sırayla dövüş
-    F={mode:'single',p1char:selected,campaign,stage:0,p2char:campaign[0],round:1,wins1:0,wins2:0,boss:false,difficulty:currentDifficulty};
+    const campaign=CHARS.filter(c=>c.id!==selected.id); // final öncesi herkesle sırayla dövüş
+    F={mode:'single',p1char:selected,campaign,stage:0,p2char:campaign[0],round:1,wins1:0,wins2:0,boss:false,finalChallenge:false,finalIndex:0,finalQueue:[],difficulty:currentDifficulty};
   }
   show('fightScreen');
   setupTouch();
@@ -906,7 +929,7 @@ function rematch(){
   if(F.mode==='local'){
     F={...F,round:1,wins1:0,wins2:0,boss:false,difficulty:'local'};
   }else{
-    F={...F,stage:0,p2char:F.campaign?F.campaign[0]:F.p2char,round:1,wins1:0,wins2:0,boss:false,difficulty:currentDifficulty};
+    F={...F,stage:0,p2char:F.campaign?F.campaign[0]:F.p2char,round:1,wins1:0,wins2:0,boss:false,finalChallenge:false,finalIndex:0,finalQueue:[],difficulty:currentDifficulty};
   }
   show('fightScreen'); startRound();
 }
@@ -922,9 +945,10 @@ function startRound(){
   setFacing(F.p1,1); setFacing(F.p2,-1);
   F.timer=60; F.running=false; F.over=false;
   document.getElementById('p1name').textContent=F.mode==='local'?`${F.p1char.name} (P1)`:F.p1char.name;
-  document.getElementById('p2name').textContent=F.mode==='local'?`${F.p2char.name} (P2)`:(F.boss?'Gökşen Hoca 👑':`${F.p2char.name} (${(F.stage||0)+1}/${F.campaign?F.campaign.length:1})`);
-  updateHP(); updateTimer(); updatePips();
-  banner(F.boss?'DİKKAT! BOSS!':'HAZIR?', ()=>{
+  document.getElementById('p2name').textContent=F.mode==='local'?`${F.p2char.name} (P2)`:(F.finalChallenge?`${F.p2char.name} (Son Teneffüs ${F.finalIndex+1}/2)`:(F.boss?'Gökşen Hoca 👑':`${F.p2char.name} (${(F.stage||0)+1}/${F.campaign?F.campaign.length:1})`));
+  F.assists=[];
+  updateHP(); updateTimer(); updatePips(); updateUlt();
+  banner(F.finalChallenge?'SON TENEFFÜS!':(F.boss?'DİKKAT! BOSS!':'HAZIR?'), ()=>{
     if(F.boss){ bossSequence(); return; }
     banner('DÖVÜŞ!', ()=>{ F.running=true; });
     F.running=false;
@@ -975,7 +999,7 @@ function bossSequence(){
         if(p1.x > ARENA_W()+80){
           clearInterval(run);
           setRun(p1,false);
-          banner('KAÇIIIŞ! 🏃💨', ()=>{ setTimeout(()=>endFight(false, true),500); });
+          banner('Sınıf dağıldı! 🏃💨', ()=>{ setTimeout(()=>endFight(false, true),500); });
         }
       }
     },16);
@@ -997,6 +1021,7 @@ function loop(ts){
   if(F.mode==='local') stepPlayer(F.p2, KEYS2, pad2);
   else stepAI(F.p2);
   physics(F.p1); physics(F.p2);
+  processAssists();
   separate();
   faceEachOther();
   resolveCombat();
@@ -1028,6 +1053,7 @@ function stepPlayer(f, keys=KEYS, padObj=pad){
   f.x += mv*4.2*fighterStat(f,'speed',1);
   if(mv) setRun(f,true); else setRun(f,false);
   if((keys.jump) && f.onGround && !f.crouching){ f.vy=-15*fighterStat(f,'jump',1); f.onGround=false; sfxJump(); }
+  if(keys.ultimate){ useUltimate(f); keys.ultimate=false; }
   if(keys.punch && f.atkCd<=0){
     if(!f.onGround) doAttack(f,'airpunch');
     else if(crouch) doAttack(f,'lowpunch');
@@ -1067,6 +1093,8 @@ function stepAI(f){
     else if(dist<72 && !nearWall){ mv=-dir*0.45; }
   }
 
+  maybeAIUltimate(f, foe, dist);
+
   const baseAtkChance = isNightmare ? (nearWall?0.13:0.085) : (nearWall?0.055:0.032);
   const atkChance = baseAtkChance * cfg.attack;
   if(dist<(isNightmare?182:150) && f.atkCd<=0 && Math.random()<atkChance){
@@ -1077,8 +1105,8 @@ function stepAI(f){
       doAttack(f, Math.random()<0.55?'punch':'kick');
     }
   }
-  if(foe.attacking && dist<(isNightmare?205:165) && Math.random()<((isNightmare?0.22:0.16)*cfg.block)){ f.blocking=true; mv=0; }
-  if(isNightmare && f.blocking && dist<165 && f.atkCd<=0 && Math.random()<0.075){ f.blocking=false; doAttack(f, Math.random()<0.55?'punch':'kick'); }
+  if(foe.attacking && dist<(isNightmare?190:165) && Math.random()<((isNightmare?0.16:0.16)*cfg.block)){ f.blocking=true; mv=0; }
+  if(isNightmare && f.blocking && dist<165 && f.atkCd<=0 && Math.random()<0.045){ f.blocking=false; doAttack(f, Math.random()<0.55?'punch':'kick'); }
   if(f.onGround && Math.random()<cfg.jump){ f.vy=-15*fighterStat(f,'jump',1); f.onGround=false; }
 
   f.x += mv*cfg.move*fighterStat(f,'speed',1);
@@ -1090,7 +1118,8 @@ function doAttack(f,type){
   f.attacking=type; f.crouching=false;
   const special = ['lowpunch','slidekick','airpunch','airkick'].includes(type);
   const spd=fighterStat(f,'speed',1);
-  f.atkCd = (F.mode==='local' || f.isP1) ? Math.max(14,Math.round((special?28:22)/spd)) : Math.max(10,Math.round(((DIFFICULTY[F.difficulty||currentDifficulty]||DIFFICULTY.normal).cooldown)/spd));
+  f.atkCd = (F.mode==='local' || f.isP1 || f.isAssist) ? Math.max(14,Math.round((special?28:22)/spd)) : Math.max(10,Math.round(((DIFFICULTY[F.difficulty||currentDifficulty]||DIFFICULTY.normal).cooldown)/spd));
+  if(f.ultRapidUntil && performance.now()<f.ultRapidUntil) f.atkCd=Math.max(6,Math.round(f.atkCd*0.55));
   const contactMap={punch:135,kick:185,lowpunch:155,slidekick:210,airpunch:145,airkick:210};
   f.atkContact = performance.now() + (contactMap[type]||150);
   f.atkHitDone=false;
@@ -1143,6 +1172,14 @@ function setRun(f,on){
 function resolveCombat(){
   checkHit(F.p1,F.p2);
   checkHit(F.p2,F.p1);
+  if(F.assists){
+    F.assists.forEach(a=>{
+      if(a.hp>0 && a.target && a.target.hp>0){
+        checkHit(a,a.target);
+        checkHit(a.target,a);
+      }
+    });
+  }
 }
 function fcenter(f){ return f.x + f.el.clientWidth/2; }
 function checkHit(att,def){
@@ -1172,11 +1209,12 @@ function checkHit(att,def){
       def.el.classList.remove('dodging'); void def.el.offsetWidth; def.el.classList.add('dodging');
       setTimeout(()=>def.el.classList.remove('dodging'),360);
       showFx(def, def.isP1 ? '💨 OYUNCU SIYRILDI!' : '💨 RAKİP SIYRILDI!', -18);
+      addUlt(def,5);
       def.x += (att.facing)*34; clampX(def);
     }else if(def.blocking){
       def.dodgeMisses=(def.dodgeMisses||0)+1;
-      sfxBlock(); showFx(def,'🛡',-10);
-      def.hp=Math.max(0,def.hp-1);
+      sfxBlock(); showFx(def,'🛡 +13',-10);
+      addUlt(def,13);
     }else{
       def.dodgeMisses=(def.dodgeMisses||0)+1;
       let dmgMap={punch:9,kick:13,lowpunch:7,slidekick:11,airpunch:10,airkick:15};
@@ -1188,7 +1226,11 @@ function checkHit(att,def){
       // Hem oyuncu hem rakip saldırırken %10 kritik vurabilir
       const critical = Math.random() < fighterStat(att,'crit',CRIT_CHANCE);
       if(critical) dmg=Math.max(1,Math.round(dmg*CRIT_MULTIPLIER));
+      addUlt(att,12);
+      if(critical) addUlt(att,5);
       def.hp=Math.max(0,def.hp-dmg);
+      addUlt(def,8);
+      checkLowHpUlt(def);
       def.hitlock=(!att.isP1 && (F.difficulty||currentDifficulty)==='nightmare')?16:10;
       def.x += (att.facing)*((!att.isP1 && (F.difficulty||currentDifficulty)==='nightmare')?22:14); clampX(def);
       sfxHit();
@@ -1209,6 +1251,155 @@ function showFx(f, emoji, dy=0){
   fx.style.left=(f.x + f.el.clientWidth*0.34)+'px';
   fx.style.top=(a.clientHeight*0.58 + dy)+'px';
   a.appendChild(fx); setTimeout(()=>fx.remove(),650);
+}
+
+
+/* ---------- ULTIMATE SİSTEMİ ---------- */
+const ULT_MAX=100;
+function ultName(id){
+  return ({
+    demir:'Artık Kendimi Savunma Değil!',
+    batu:'Peş Peşe Baskı',
+    basri:'Arkadaştan Asist',
+    mirza:'1-2-3-4-5 Kombo',
+    emin:'Güreşçi Yumruğu',
+    cinar:'Ne Oldu? Geri Başa Döndük.',
+    ati:'Yaratıcı’nın Nimeti'
+  })[id] || 'Ultimate';
+}
+function addUlt(f,amount){
+  if(!f || f.ultUsed || f.isAssist || F.boss && !f.isP1) return;
+  f.ult=Math.max(0,Math.min(ULT_MAX,(f.ult||0)+amount));
+  if(f.ult>=ULT_MAX){ showFx(f,'ULT HAZIR! ⚡',-35); }
+  updateUlt();
+}
+function checkLowHpUlt(f){
+  if(!f || f.lowHpUltGiven || f.isAssist) return;
+  if(f.hp>0 && f.hp/f.maxHp<=0.20){
+    f.lowHpUltGiven=true;
+    addUlt(f,30);
+    showFx(f,'SON ŞANS! +30 ⚡',-34);
+  }
+}
+function updateUlt(){
+  const set=(f,id,txtid)=>{
+    const bar=document.getElementById(id), txt=document.getElementById(txtid);
+    if(!bar || !txt || !f) return;
+    const pct=Math.max(0,Math.min(100,Math.round(f.ult||0)));
+    bar.style.width=pct+'%';
+    bar.classList.toggle('ready', pct>=100 && !f.ultUsed);
+    txt.textContent=(f.ultUsed?'ULT KULLANILDI':(pct>=100?'ULT HAZIR':'ULT '+pct+'%'));
+  };
+  set(F.p1,'p1ult','p1ulttxt');
+  set(F.p2,'p2ult','p2ulttxt');
+}
+function flashUlt(f){
+  if(!f || !f.el) return;
+  f.el.classList.remove('ultFlash'); void f.el.offsetWidth; f.el.classList.add('ultFlash');
+  setTimeout(()=>f.el.classList.remove('ultFlash'),1500);
+}
+function getOpponent(f){ return f===F.p1 ? F.p2 : F.p1; }
+function useUltimate(f){
+  if(!F.running || F.over || !f || f.isAssist || f.ultUsed || (f.ult||0)<ULT_MAX) return false;
+  const id=f.char.id;
+  if(id==='goksen') return false;
+  f.ultUsed=true; f.ult=0; updateUlt(); flashUlt(f); sfxBell();
+  const foe=getOpponent(f);
+  showFx(f,'⚡ '+ultName(id),-48);
+  if(id==='demir'){
+    f.ultPowerUntil=performance.now()+7000;
+    showFx(f,'HASAR +%50!',-20);
+  }else if(id==='batu'){
+    f.ultRapidUntil=performance.now()+5000;
+    showFx(f,'HIZLI SALDIRI!',-20);
+  }else if(id==='basri'){
+    summonAssist(f);
+  }else if(id==='mirza'){
+    mirzaCombo(f,foe);
+  }else if(id==='emin'){
+    eminPunch(f,foe);
+  }else if(id==='cinar'){
+    f.hp=f.maxHp; showFx(f,'CAN FULL! 💚',-20); updateHP();
+  }else if(id==='ati'){
+    f.ultLuckUntil=performance.now()+8000;
+    showFx(f,'ŞANS x3!',-20);
+  }
+  return true;
+}
+function maybeAIUltimate(f,foe,dist){
+  if(!f || f.isP1 || F.mode==='local' || f.ultUsed || (f.ult||0)<100 || F.boss) return;
+  const id=f.char.id;
+  if(id==='cinar' && f.hp/f.maxHp<0.55) useUltimate(f);
+  else if(id==='demir' || id==='batu' || id==='ati') useUltimate(f);
+  else if(id==='mirza' && dist<260) useUltimate(f);
+  else if(id==='emin' && dist<190) useUltimate(f);
+  else if(id==='basri' && dist<300) useUltimate(f);
+}
+function applyDirectDamage(att,def,dmg,label){
+  if(!def || def.hp<=0 || F.over) return;
+  def.hp=Math.max(0,def.hp-Math.max(1,Math.round(dmg)));
+  addUlt(att,12); addUlt(def,8); checkLowHpUlt(def);
+  showFx(def,label||'💥'); sfxHit(); updateHP();
+  if(def.hp<=0) koCheck();
+}
+function mirzaCombo(f,foe){
+  if(!foe) return;
+  const offset=foe.el.clientWidth*0.85;
+  f.x=foe.x - f.facing*offset;
+  clampX(f); f.el.style.left=f.x+'px';
+  faceEachOther(); f.hitlock=75; foe.hitlock=75;
+  [0,220,440,660,880].forEach((delay,i)=>setTimeout(()=>{
+    if(F.over || f.hp<=0 || foe.hp<=0) return;
+    applyDirectDamage(f,foe,foe.maxHp*0.10,`${i+1}! 💥`);
+  },delay));
+}
+function eminPunch(f,foe){
+  f.hitlock=70; f.atkCd=95; showFx(f,'GÜÇ TOPLUYOR...',-20); sfxPunch();
+  setTimeout(()=>{
+    if(F.over || f.hp<=0 || !foe || foe.hp<=0) return;
+    faceEachOther();
+    const dist=Math.abs(fcenter(f)-fcenter(foe));
+    const facingFoe=(f.facing===1 && fcenter(foe)>fcenter(f))||(f.facing===-1 && fcenter(foe)<fcenter(f));
+    if(dist<155 && facingFoe && Math.abs(f.y-foe.y)<85){
+      const rawDmg=Math.round(foe.maxHp*0.90);
+      const nonLethalDmg=Math.max(0, Math.min(rawDmg, Math.ceil(foe.hp)-1));
+      if(nonLethalDmg>0) applyDirectDamage(f,foe,nonLethalDmg,'%90 HASAR! 🥊');
+      else showFx(foe,'1 HP KALDI! 😵',-18);
+    }else{
+      showFx(f,'ISKA! 😵',-18); f.hitlock=90; f.atkCd=110;
+    }
+  },950);
+}
+function summonAssist(owner){
+  const pool=CHARS.filter(c=>c.id==='emin'||c.id==='ati');
+  const base=pool[Math.floor(Math.random()*pool.length)];
+  const helper={...base, name:base.name+' Asist', stats:{...base.stats, hp:Math.round((base.stats.hp||100)*0.5), power:(base.stats.power||1)*0.5, luck:base.stats.luck||0.06}};
+  const x=owner.x - owner.facing*70;
+  const h=makeFighter(helper, Math.max(0,Math.min(ARENA_W()-90,x)), owner.facing, owner.isP1);
+  h.isAssist=true; h.owner=owner; h.target=getOpponent(owner); h.expire=performance.now()+8000; h.ultUsed=true;
+  h.el.style.opacity='0.9'; h.el.style.zIndex=4;
+  F.assists=F.assists||[]; F.assists.push(h);
+  showFx(owner,base.name+' GELDİ! 🤝',-20);
+}
+function stepAssist(a){
+  if(!a || !a.target || a.hp<=0 || performance.now()>a.expire){ removeAssist(a); return; }
+  if(a.hitlock>0){ a.hitlock--; return; }
+  const foe=a.target;
+  const dist=Math.abs(fcenter(a)-fcenter(foe));
+  const dir=(fcenter(foe)<fcenter(a))?-1:1;
+  let mv=0;
+  if(dist>115) mv=dir*0.9;
+  a.x += mv*3.25; setRun(a,mv!==0); clampX(a);
+  if(dist<140 && a.atkCd<=0) doAttack(a, Math.random()<0.6?'punch':'kick');
+}
+function processAssists(){
+  if(!F.assists) return;
+  F.assists.slice().forEach(a=>{ stepAssist(a); physics(a); });
+}
+function removeAssist(a){
+  if(!a) return;
+  if(a.el) a.el.remove();
+  if(F.assists) F.assists=F.assists.filter(x=>x!==a);
 }
 
 /* ---------- KO / ROUND / SONUÇ ---------- */
@@ -1247,6 +1438,21 @@ function roundEnd(p1won){
 }
 
 function advanceCampaign(){
+  if(F.finalChallenge){
+    F.finalIndex=(F.finalIndex||0)+1;
+    if(F.finalQueue && F.finalIndex < F.finalQueue.length){
+      const next=F.finalQueue[F.finalIndex];
+      banner('İlk rakip tamam! 🏆', ()=>{
+        banner('İkinci rakip: '+next.name, ()=>{
+          F.p2char=next; F.round=1; F.wins1=0; F.wins2=0; F.over=false; startRound();
+        });
+      });
+    }else{
+      goksenArrival();
+    }
+    return;
+  }
+
   F.stage=(F.stage||0)+1;
   if(F.campaign && F.stage < F.campaign.length){
     const next=F.campaign[F.stage];
@@ -1256,17 +1462,38 @@ function advanceCampaign(){
       });
     });
   }else{
-    bossIntro();
+    startFinalChallenge();
   }
 }
 
-function bossIntro(){
-  banner('Rakibini yendin! 🏆', ()=>{
-    banner('Sıradaki: GÖKŞEN HOCA 👑', ()=>{
-      F.boss=true; F.round=1; F.wins1=0; F.wins2=0; F.over=false;
-      F.p2char=BOSS;
-      startRound();
+function startFinalChallenge(){
+  F.finalChallenge=true;
+  F.finalIndex=0;
+  F.finalQueue=pickFinalChallengeOpponents();
+  const first=F.finalQueue[0];
+  banner('Son Teneffüs Kapışması!', ()=>{
+    banner('Art arda iki rakip!', ()=>{
+      banner('İlk rakip: '+first.name, ()=>{
+        F.p2char=first; F.round=1; F.wins1=0; F.wins2=0; F.over=false; startRound();
+      });
     });
+  });
+}
+
+function goksenArrival(){
+  show('fightScreen');
+  clearFighters();
+  updateBoardTopic();
+  const W=ARENA_W();
+  F.p1=makeFighter(F.p1char, W*0.22, 1, true);
+  F.p2=makeFighter(BOSS, W*0.66, -1, false);
+  setFacing(F.p1,1); setFacing(F.p2,-1);
+  F.boss=true; F.running=false; F.over=false;
+  document.getElementById('p1name').textContent=F.p1char.name;
+  document.getElementById('p2name').textContent='Gökşen Hoca';
+  updateHP(); updateTimer(); updatePips(); updateUlt();
+  banner('Gökşen Hoca geldi.', ()=>{
+    bossSequence();
   });
 }
 
@@ -1280,9 +1507,9 @@ function endFight(won, escaped){
     p.textContent = winner + ' bu maçın galibi oldu!';
     sfxWin();
   }else if(escaped){
-    t.textContent='KAÇTIN! 🏃💨'; t.className='lose';
-    p.innerHTML='Öğretmeni dövmek olmaz! 😄<br>Akıllıca bir kaçıştı. Şampiyon yine sensin!';
-    sfxLose();
+    t.textContent='GÖKŞEN HOCA GELDİ'; t.className='win';
+    p.innerHTML='Kapışma sona erdi.<br>Sınıf dağıldı!';
+    sfxWin();
   }else if(won){
     t.textContent='KAZANDIN! 🏆'; t.className='win';
     p.textContent=F.p1char.name+' sınıfın şampiyonu oldu!';
@@ -1301,6 +1528,7 @@ function updateHP(){
   const p2pct=Math.max(0,Math.round((F.p2.hp/F.p2.maxHp)*100));
   a.style.width=p1pct+'%'; b.style.width=p2pct+'%';
   a.classList.toggle('low',p1pct<30); b.classList.toggle('low',p2pct<30);
+  updateUlt();
 }
 function updateTimer(){ document.getElementById('timer').textContent=Math.max(0,F.timer); }
 function updatePips(){
@@ -1314,11 +1542,11 @@ document.addEventListener('keydown',e=>{
   checkCheatCode(e);
   if(gameMode==='local'){
     const k1=P1MAP[e.code], k2=P2MAP[e.code];
-    if(k1){ KEYS[k1]=true; if(['jump','punch','kick','crouch','block'].includes(k1))e.preventDefault(); }
-    if(k2){ KEYS2[k2]=true; if(['jump','punch','kick','crouch','block'].includes(k2))e.preventDefault(); }
+    if(k1){ KEYS[k1]=true; if(['jump','punch','kick','crouch','block','ultimate'].includes(k1))e.preventDefault(); }
+    if(k2){ KEYS2[k2]=true; if(['jump','punch','kick','crouch','block','ultimate'].includes(k2))e.preventDefault(); }
   }else{
     const k=SINGLEMAP[e.code];
-    if(k){KEYS[k]=true; if(['jump','punch','kick','crouch','block'].includes(k))e.preventDefault();}
+    if(k){KEYS[k]=true; if(['jump','punch','kick','crouch','block','ultimate'].includes(k))e.preventDefault();}
   }
 });
 document.addEventListener('keyup',e=>{
