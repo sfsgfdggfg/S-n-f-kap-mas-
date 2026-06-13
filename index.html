@@ -152,15 +152,15 @@
   #touch{position:absolute;bottom:0;left:0;right:0;z-index:25;display:none;
     justify-content:space-between;padding:10px 14px 18px;pointer-events:none;}
   #touch .pad,#touch .acts{display:flex;gap:10px;pointer-events:auto;}
-  #touchLocal{position:absolute;bottom:calc(24px + env(safe-area-inset-bottom,0px));left:0;right:0;z-index:26;display:none;
-    justify-content:space-between;align-items:flex-end;padding:0 5px;pointer-events:none;gap:4px;}
-  .mobilePlayer{pointer-events:auto;background:#00000030;border:1.5px solid #ffffff30;border-radius:14px;padding:5px;backdrop-filter:blur(3px);max-width:49vw;}
-  .mobilePlayer .mpLabel{color:#fff;font-weight:bold;text-align:center;font-size:min(2.8vw,12px);text-shadow:1px 1px 0 #000;margin-bottom:2px;line-height:1;}
-  .mobilePlayer .mpRow{display:flex;justify-content:center;gap:4px;margin-top:4px;}
+  #touchLocal{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom,0px));left:0;right:0;z-index:26;display:none;
+    flex-direction:row;justify-content:space-between;align-items:flex-end;padding:0 10px;gap:8px;pointer-events:none;}
+  .mobilePlayer{pointer-events:auto;background:#00000030;border:1.5px solid #ffffff30;border-radius:16px;padding:6px 7px;backdrop-filter:blur(3px);width:auto;min-width:min(18vw,76px);max-width:min(20vw,86px);}
+  .mobilePlayer .mpLabel{color:#fff;font-weight:bold;text-align:center;font-size:min(3.1vw,13px);text-shadow:1px 1px 0 #000;margin-bottom:4px;line-height:1;}
+  .mobilePlayer .mpRow{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;margin-top:6px;}
   .mobilePlayer.p1{align-self:flex-end;}
   .mobilePlayer.p2{align-self:flex-end;}
-  #touchLocal .tbtn{width:min(10.2vw,46px);height:min(10.2vw,46px);font-size:min(4.5vw,20px);border-width:1.5px;}
-  #touchLocal .tbtn.big{width:min(10.6vw,48px);height:min(10.6vw,48px);}
+  #touchLocal .tbtn{width:min(12.8vw,54px);height:min(12.8vw,54px);font-size:min(5.2vw,23px);border-width:1.5px;}
+  #touchLocal .tbtn.big{width:min(12.8vw,54px);height:min(12.8vw,54px);}
   #touchLocal .p1 .tbtn.big{background:#e23b3bcc;}
   #touchLocal .p2 .tbtn.big{background:#3b78e2cc;}
   .tbtn{width:min(15vw,64px);height:min(15vw,64px);border-radius:50%;
@@ -169,20 +169,22 @@
     backdrop-filter:blur(2px);}
   .tbtn:active{background:#ffffff55;}
   .tbtn.big{background:var(--accent)cc;}
-  @media(max-height:520px){
-    #touchLocal{bottom:calc(14px + env(safe-area-inset-bottom,0px));padding:0 4px;gap:3px;}
-    #touchLocal .tbtn{width:min(9.2vw,40px);height:min(9.2vw,40px);font-size:min(4vw,18px);}
-    #touchLocal .tbtn.big{width:min(9.6vw,42px);height:min(9.6vw,42px);}
-    .mobilePlayer{padding:4px;border-radius:12px;}
+  @media(max-height:720px){
+    #touchLocal{bottom:calc(12px + env(safe-area-inset-bottom,0px));padding:0 8px;gap:6px;}
+    #touchLocal .tbtn{width:min(11.8vw,48px);height:min(11.8vw,48px);font-size:min(4.8vw,21px);}
+    #touchLocal .tbtn.big{width:min(11.8vw,48px);height:min(11.8vw,48px);}
+    .mobilePlayer{padding:5px 6px;border-radius:13px;min-width:min(17vw,68px);}
     .mobilePlayer .mpLabel{display:none;}
-    .mobilePlayer .mpRow{gap:3px;margin-top:3px;}
+    .mobilePlayer .mpRow{gap:5px;margin-top:5px;}
   }
   @media(max-width:380px){
-    #touchLocal .tbtn{width:min(9.3vw,38px);height:min(9.3vw,38px);font-size:min(4.1vw,17px);}
-    #touchLocal .tbtn.big{width:min(9.6vw,40px);height:min(9.6vw,40px);}
-    .mobilePlayer{padding:3px;}
-    .mobilePlayer .mpRow{gap:3px;}
+    #touchLocal{padding:0 6px;}
+    #touchLocal .tbtn{width:min(11.5vw,44px);height:min(11.5vw,44px);font-size:min(4.7vw,19px);}
+    #touchLocal .tbtn.big{width:min(11.5vw,44px);height:min(11.5vw,44px);}
+    .mobilePlayer{padding:4px 5px;min-width:min(16vw,62px);}
+    .mobilePlayer .mpRow{gap:4px;}
   }
+
 
   /* result */
   #resultScreen{align-items:center;justify-content:center;text-align:center;
@@ -832,7 +834,7 @@ const KEYS={}, KEYS2={};
 const SINGLEMAP={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'jump',ArrowDown:'crouch',KeyZ:'punch',KeyX:'kick',KeyC:'block',
             KeyA:'left',KeyD:'right',KeyW:'jump',KeyS:'crouch',Space:'jump'};
 const P1MAP={KeyA:'left',KeyD:'right',KeyW:'jump',KeyS:'crouch',KeyF:'punch',KeyG:'kick',KeyH:'block'};
-const P2MAP={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'jump',ArrowDown:'crouch',KeyZ:'punch',KeyX:'kick',KeyC:'block'};
+const P2MAP={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'jump',ArrowDown:'crouch',KeyJ:'punch',KeyK:'kick',KeyL:'block'};
 
 function makeFighter(char, x, facing, isP1){
   const el=document.createElement('div');
