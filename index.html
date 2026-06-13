@@ -82,6 +82,15 @@
     background:#0a0d12;border:min(1.6vw,9px) solid #1c1c1c;border-radius:6px;
     box-shadow:0 6px 18px #0008;overflow:hidden;}
   .board .scr{position:absolute;inset:4%;background:linear-gradient(#dceef2,#c4dde3);border-radius:2px;}
+  .boardTopic{position:absolute;inset:7% 6%;z-index:2;color:#17313a;font-family:'Comic Sans MS','Trebuchet MS',cursive;
+    text-align:left;line-height:1.12;text-shadow:0 1px 0 #fff8;pointer-events:none;}
+  .boardTopic .lesson{font-size:min(1.9vw,15px);font-weight:bold;color:#b22b2b;transform:rotate(-1.5deg);display:inline-block;}
+  .boardTopic .main{font-size:min(2.8vw,24px);font-weight:bold;margin-top:1px;color:#153544;}
+  .boardTopic .note{font-size:min(1.55vw,13px);margin-top:3px;color:#31505a;opacity:.96;}
+  .boardTopic .formula{font-size:min(1.85vw,16px);font-weight:bold;margin-top:4px;color:#203f48;transform:rotate(.4deg);}
+  .boardTopic .example{font-size:min(1.45vw,12px);margin-top:3px;color:#264a55;background:#ffffff38;border-left:3px solid #b22b2b;padding-left:5px;width:76%;}
+  .boardTopic .scribble{position:absolute;right:0;top:22%;width:22%;font-size:min(1.35vw,11px);color:#6d7f84;line-height:1.15;transform:rotate(-4deg);opacity:.82;}
+  .boardTopic .chalkLine{position:absolute;left:0;right:0;bottom:12%;height:2px;background:#7ca5ad66;box-shadow:0 13px 0 #7ca5ad44,0 26px 0 #7ca5ad33;}
   .board .col{position:absolute;top:8%;height:84%;width:1px;background:#9bb;opacity:.6;}
   .board .nm{position:absolute;top:8%;color:#b33;font-family:'Comic Sans MS',cursive;
     font-size:min(2.4vw,15px);transform:rotate(-3deg);}
@@ -336,6 +345,7 @@
       <div class="wall"></div>
       <div class="board">
         <div class="scr"></div>
+        <div class="boardTopic" id="boardTopic"></div>
       </div>
       <div class="frame portrait"><div class="head"></div></div>
       <div class="frame frameTxt l"><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div>
@@ -639,6 +649,35 @@ function makeFighter(char, x, facing, isP1){
 
 let pad={left:false,right:false}; // touch hold
 
+const BOARD_TOPICS = [
+  {lesson:'7. Sınıf Matematik', main:'Rasyonel Sayılar', note:'Paydaları eşitle → işlemi yap → sadeleştir.', formula:'-2/3 + 5/6 = -4/6 + 5/6 = 1/6', example:'Örnek: 3/4 ÷ 2/5 = 3/4 · 5/2 = 15/8', scribble:'işaretlere dikkat!<br>− · − = +'},
+  {lesson:'7. Sınıf Fen Bilimleri', main:'Güneş Sistemi ve Ötesi', note:'Gezegenler Güneş etrafında dolanır; yıldızlar kendi ışığını üretir.', formula:'Merkür → Venüs → Dünya → Mars → Jüpiter...', example:'Soru: Dünya’dan bakınca en parlak yıldız gibi görünen gök cismi hangisi?', scribble:'teleskop<br>ışık yılı ≠ zaman'},
+  {lesson:'7. Sınıf Türkçe', main:'Fiiller ve Anlam Özellikleri', note:'İş fiili: nesne alır. Durum fiili: hâl bildirir. Oluş fiili: kendiliğinden olur.', formula:'koşmak = durum  |  kırmak = iş  |  sararmak = oluş', example:'Cümle: “Çocuk kitabı okudu.” → iş fiili', scribble:'Kim? Neyi?<br>Ne yaptı?'},
+  {lesson:'7. Sınıf Sosyal Bilgiler', main:'İletişim ve İnsan İlişkileri', note:'Etkili iletişim için dinleme, empati ve ben dili kullanılır.', formula:'Ben dili: “Sen böylesin” değil, “Ben böyle hissediyorum.”', example:'Örnek: “Sözüm kesilince üzülüyorum.”', scribble:'empati = kendini<br>onun yerine koy'},
+  {lesson:'7. Sınıf İngilizce', main:'Biographies', note:'Geçmişte yaşanan olaylar için Past Simple kullanılır.', formula:'was / were + born  •  V2', example:'Atatürk was born in 1881. He founded the Republic.', scribble:'yesterday<br>last year<br>ago'},
+  {lesson:'7. Sınıf Matematik', main:'Cebirsel İfadeler', note:'Benzer terimler toplanır; değişken aynı olmalı.', formula:'3x + 5x − 2 = 8x − 2', example:'Örnek: 2a + 4 + 3a − 1 = 5a + 3', scribble:'x elma gibi düşün!'},
+  {lesson:'7. Sınıf Fen Bilimleri', main:'Hücre ve Bölünmeler', note:'Mitoz büyüme ve onarım sağlar; mayoz üreme hücresi oluşturur.', formula:'Mitoz: 2n → 2n  |  Mayoz: 2n → n', example:'Soru: Derideki yaranın iyileşmesi hangi bölünme?', scribble:'çekirdek<br>kromozom<br>DNA'},
+  {lesson:'7. Sınıf Türkçe', main:'Paragrafta Anlam', note:'Ana fikir yazarın asıl anlatmak istediği düşüncedir.', formula:'Konu: ne anlatılıyor?  Ana fikir: hangi mesaj veriliyor?', example:'Örnek: “Kitap okumak hayal gücünü geliştirir.”', scribble:'başlık ipucu verir'},
+  {lesson:'7. Sınıf Sosyal Bilgiler', main:'Türk Tarihinde Yolculuk', note:'Osmanlı’nın büyümesinde coğrafi konum ve hoşgörü politikası etkili oldu.', formula:'Beylik → Devlet → İmparatorluk', example:'Soru: Bursa’nın alınması neden önemlidir?', scribble:'kuruluş dönemi<br>fetih politikası'},
+  {lesson:'7. Sınıf Matematik', main:'Oran ve Orantı', note:'Doğru orantıda biri artarsa diğeri de artar.', formula:'a/b = c/d  ⇒  a·d = b·c', example:'Örnek: 3 kalem 24 TL ise 5 kalem kaç TL?', scribble:'çapraz çarp!'},
+  {lesson:'7. Sınıf Fen Bilimleri', main:'Kuvvet ve Enerji', note:'Sürtünme kuvveti hareketi zorlaştırır; bazen faydalıdır.', formula:'Ağırlık = kütle × yerçekimi', example:'Soru: Buzda yürümek neden zordur?', scribble:'F<br>↓<br>masa tepki verir'},
+  {lesson:'7. Sınıf Türkçe', main:'Yazım Kuralları', note:'Özel adlara gelen çekim ekleri kesme işaretiyle ayrılır.', formula:'Ankara’ya, Demir’in, Türkiye’de', example:'Yanlış: Mersinde  Doğru: Mersin’de', scribble:'de/da ayrı mı?<br>kontrol et!'},
+  {lesson:'7. Sınıf İngilizce', main:'Sports', note:'Yeteneklerden bahsederken can / can’t kullanılır.', formula:'I can swim.  •  She can’t ski.', example:'Question: Can you play basketball? — Yes, I can.', scribble:'team<br>score<br>training'},
+  {lesson:'7. Sınıf Matematik', main:'Yüzdeler', note:'Yüzde, bir bütünün 100 eş parçasından kaçıdır?', formula:'%25 = 25/100 = 1/4', example:'Örnek: 200 TL’nin %15’i = 30 TL', scribble:'indirim<br>artış<br>azalış'},
+  {lesson:'7. Sınıf Fen Bilimleri', main:'Saf Madde ve Karışımlar', note:'Element tek cins atomdan, bileşik farklı atomların bağlanmasından oluşur.', formula:'H₂O = bileşik  |  Fe = element', example:'Soru: Tuzlu su homojen karışım mıdır?', scribble:'çözelti<br>süzme<br>buharlaştırma'},
+  {lesson:'7. Sınıf Sosyal Bilgiler', main:'Ekonomi ve Sosyal Hayat', note:'Üretim, dağıtım ve tüketim ekonominin temel aşamalarıdır.', formula:'Üretici → Dağıtıcı → Tüketici', example:'Örnek: Çiftçi buğday üretir, fırın ekmek yapar.', scribble:'meslek seçimi<br>ihtiyaç / istek'}
+];
+
+function updateBoardTopic(){
+  const el=document.getElementById('boardTopic');
+  if(!el) return;
+  const stage=F.stage||0, round=F.round||1;
+  const bossBonus=F.boss?7:0;
+  const idx=(stage*2 + round - 1 + bossBonus) % BOARD_TOPICS.length;
+  const t=BOARD_TOPICS[idx];
+  el.innerHTML=`<div class="lesson">${t.lesson}</div><div class="main">${t.main}</div><div class="note">${t.note}</div><div class="formula">${t.formula}</div><div class="example">${t.example}</div><div class="scribble">${t.scribble}</div><div class="chalkLine"></div>`;
+}
+
 function startFight(){
   if(!selected) return;
   const campaign=CHARS.filter(c=>c.id!==selected.id); // boss öncesi herkesle sırayla dövüş
@@ -654,6 +693,7 @@ function clearFighters(){ document.querySelectorAll('.fighter,.kofly,.hitfx').fo
 
 function startRound(){
   clearFighters();
+  updateBoardTopic();
   const W=ARENA_W();
   F.p1=makeFighter(F.p1char, W*0.22, 1, true);
   F.p2=makeFighter(F.p2char, W*0.66, -1, false);
