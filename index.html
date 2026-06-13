@@ -262,6 +262,20 @@
   .menuPanel.credits{text-align:center;}
   .menuPanel .small{font-size:min(3.8vw,16px);opacity:.75;}
 
+  .difficultyBox{background:#ffffff14;border:2px solid #ffffff25;border-radius:16px;
+    padding:12px 14px;margin:0 auto 18px;max-width:420px;width:86%;backdrop-filter:blur(3px);}
+  .difficultyBox .ctitle{color:var(--accent2);font-weight:bold;font-size:min(4.4vw,18px);
+    margin-bottom:10px;text-align:center;}
+  .diffBtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+  .diffBtn{background:#ffffff22;color:#fff;border:2px solid #ffffff55;border-radius:12px;
+    padding:9px 14px;font-family:inherit;font-weight:bold;font-size:min(4vw,16px);cursor:pointer;
+    box-shadow:0 3px 0 #0005;}
+  .diffBtn.sel{background:var(--accent2);color:#513d00;border-color:#fff;box-shadow:0 0 14px #ffce3a88,0 3px 0 #8a6b00;}
+  .diffBtn.secret{display:none;}
+  .diffBtn.nightmare{background:#2a0610;color:#ff9ab2;border-color:#ff3b72;box-shadow:0 0 18px #ff005588,0 3px 0 #620018;}
+  .diffBtn.nightmare.sel{background:#ff2d6a;color:#fff;border-color:#fff;box-shadow:0 0 22px #ff2d6aaa,0 3px 0 #7c0026;}
+  .diffNote{color:#cfe0ee;font-size:min(3.3vw,13px);text-align:center;margin-top:9px;}
+
   @media(max-width:680px){
     .grid{grid-template-columns:repeat(3,1fr);}
     .card.boss{grid-column:span 3;}
@@ -284,6 +298,16 @@
       <div class="ctrow"><span class="keys"><kbd>X</kbd></span><span class="cdesc">Tekme 🦵</span></div>
       <div class="ctrow"><span class="keys"><kbd>C</kbd></span><span class="cdesc">Blok 🛡️</span></div>
       <div class="ctnote">↓+Z / ↓+X ve zıplarken Z/X özel hareket yapar</div>
+    </div>
+    <div class="difficultyBox">
+      <div class="ctitle">🎚️ Zorluk</div>
+      <div class="diffBtns">
+        <button class="diffBtn" data-diff="easy" onclick="setDifficulty('easy')">Kolay</button>
+        <button class="diffBtn sel" data-diff="normal" onclick="setDifficulty('normal')">Orta</button>
+        <button class="diffBtn" data-diff="hard" onclick="setDifficulty('hard')">Zor</button>
+        <button class="diffBtn secret nightmare" data-diff="nightmare" onclick="setDifficulty('nightmare')">Kabus</button>
+      </div>
+      <div class="diffNote" id="diffNote">Orta: dengeli mücadele</div>
     </div>
     <div class="selrow">
       <button class="bigbtn" onclick="goSelect()">BAŞLA</button>
@@ -360,6 +384,7 @@
       <p><b>Görev:</b> Sınıftaki arkadaşlarla sırayla kapış ve finali gör.</p>
       <p><b>Hareket:</b> ← → ile yürü, ↑ ile zıpla, ↓ ile eğil.</p>
       <p><b>Saldırı:</b> Z yumruk, X tekme, C blok.</p>
+      <p><b>Zorluk:</b> Ana ekrandan Kolay, Orta veya Zor seçebilirsin.</p>
       <p><b>Özel hareketler:</b> ↓+Z alçak yumruk, ↓+X kayarak tekme, zıplarken Z hava yumruğu, zıplarken X uçan tekme.</p>
     </div>
     <button class="bigbtn" onclick="backTitle()">Geri</button>
@@ -418,6 +443,45 @@ const CHARS = [
 const BOSS = {id:'goksen', name:'Gökşen Hoca', color:'#c2d84a', pants:'#3a2a6a'};
 
 let selected = null;
+let currentDifficulty = 'normal';
+const DIFFICULTY = {
+  easy:      {label:'Kolay',  note:'Kolay: rakip daha az saldırır ve daha az hasar verir', pause:0.018, move:2.45, attack:0.66, block:0.55, damage:0.58, cooldown:64, jump:0.0007},
+  normal:    {label:'Orta',   note:'Orta: dengeli mücadele', pause:0.010, move:2.8,  attack:1.00, block:1.00, damage:0.68, cooldown:54, jump:0.0010},
+  hard:      {label:'Zor',    note:'Zor: rakip daha agresif, daha hızlı ve daha iyi blok yapar', pause:0.005, move:3.25, attack:1.35, block:1.45, damage:0.82, cooldown:43, jump:0.0015},
+  nightmare: {label:'Kabus',  note:'Kabus: gizli zorluk! Rakip acımasız: çok hızlı yaklaşır, sık saldırır, iyi blok yapar ve sert vurur', pause:0.000, move:5.15, attack:3.45, block:4.20, damage:1.55, cooldown:16, jump:0.0045}
+};
+function setDifficulty(level){
+  if(!DIFFICULTY[level]) level='normal';
+  if(level==='nightmare') unlockNightmareDifficulty(false);
+  currentDifficulty=level;
+  document.querySelectorAll('.diffBtn').forEach(b=>b.classList.toggle('sel', b.dataset.diff===level));
+  const note=document.getElementById('diffNote');
+  if(note) note.textContent=DIFFICULTY[level].note;
+}
+
+let nightmareUnlocked=false;
+let cheatBuffer='';
+const CHEAT_CODE='wwssadadba';
+function unlockNightmareDifficulty(showMessage=true){
+  if(nightmareUnlocked) return;
+  nightmareUnlocked=true;
+  const btn=document.querySelector('.diffBtn[data-diff="nightmare"]');
+  if(btn) btn.style.display='inline-block';
+  if(showMessage){
+    setDifficulty('nightmare');
+    sfxBell(); setTimeout(sfxScream,120);
+    const note=document.getElementById('diffNote');
+    if(note) note.textContent='KABUS ZORLUĞU AÇILDI! 😈';
+  }
+}
+function checkCheatCode(e){
+  const tag=(e.target && e.target.tagName || '').toLowerCase();
+  if(tag==='input' || tag==='textarea') return;
+  const key=(e.key||'').toLowerCase();
+  if(!'wasdb'.includes(key) || key.length!==1) return;
+  cheatBuffer=(cheatBuffer+key).slice(-CHEAT_CODE.length);
+  if(cheatBuffer===CHEAT_CODE) unlockNightmareDifficulty(true);
+}
 
 /* ---------- SES (WebAudio, dosyasız) ---------- */
 let AC=null;
@@ -570,13 +634,13 @@ let pad={left:false,right:false}; // touch hold
 function startFight(){
   if(!selected) return;
   const campaign=CHARS.filter(c=>c.id!==selected.id); // boss öncesi herkesle sırayla dövüş
-  F={p1char:selected,campaign,stage:0,p2char:campaign[0],round:1,wins1:0,wins2:0,boss:false};
+  F={p1char:selected,campaign,stage:0,p2char:campaign[0],round:1,wins1:0,wins2:0,boss:false,difficulty:currentDifficulty};
   show('fightScreen');
   setupTouch();
   startRound();
 }
 
-function rematch(){ if(!F.p1char){ goSelect(); return;} F={...F,stage:0,p2char:F.campaign?F.campaign[0]:F.p2char,round:1,wins1:0,wins2:0,boss:false}; show('fightScreen'); startRound(); }
+function rematch(){ if(!F.p1char){ goSelect(); return;} F={...F,stage:0,p2char:F.campaign?F.campaign[0]:F.p2char,round:1,wins1:0,wins2:0,boss:false,difficulty:currentDifficulty}; show('fightScreen'); startRound(); }
 
 function clearFighters(){ document.querySelectorAll('.fighter,.kofly,.hitfx').forEach(e=>e.remove()); }
 
@@ -709,6 +773,8 @@ function stepPlayer(f){
 /* ---------- AI (adil/kolay - oyuncu çoğu zaman kazanır) ---------- */
 function stepAI(f){
   if(f.hitlock>0){ f.hitlock--; return; }
+  const cfg=DIFFICULTY[F.difficulty||currentDifficulty]||DIFFICULTY.normal;
+  const isNightmare=(F.difficulty||currentDifficulty)==='nightmare';
   const foe=F.p1;
   const dist=Math.abs(fcenter(f)-fcenter(foe));
   f._ai=(f._ai||0)+1;
@@ -716,22 +782,35 @@ function stepAI(f){
   let mv=0;
   f.blocking=false; f.crouching=false;
 
-  // tereddüt: ara sıra kısa bekler
+  // zorluk ayarına göre tereddüt
   if(f._pause>0){ f._pause--; setRun(f,false); return; }
-  if(Math.random()<0.010){ f._pause=16+Math.floor(Math.random()*22); }
+  if(Math.random()<cfg.pause){ f._pause=16+Math.floor(Math.random()*24); }
 
   const W=ARENA_W(), nearWall=(f.x<60)||(f.x>W-f.el.clientWidth-60);
-  if(dist>132){ mv=dir; }
-  else if(dist<72 && !nearWall){ mv=-dir*0.45; }
-
-  const atkChance = nearWall?0.055:0.032;
-  if(dist<150 && f.atkCd<=0 && Math.random()<atkChance){
-    doAttack(f, Math.random()<0.55?'punch':'kick');
+  if(isNightmare){
+    if(dist>170){ mv=dir*1.08; }
+    else if(dist>95){ mv=dir*0.72; }
+    else if(dist<50 && !nearWall){ mv=-dir*0.22; }
+  }else{
+    if(dist>132){ mv=dir; }
+    else if(dist<72 && !nearWall){ mv=-dir*0.45; }
   }
-  if(foe.attacking && dist<165 && Math.random()<0.16){ f.blocking=true; mv=0; }
-  if(f.onGround && Math.random()<0.001){ f.vy=-15; f.onGround=false; }
 
-  f.x += mv*2.8;
+  const baseAtkChance = isNightmare ? (nearWall?0.13:0.085) : (nearWall?0.055:0.032);
+  const atkChance = baseAtkChance * cfg.attack;
+  if(dist<(isNightmare?182:150) && f.atkCd<=0 && Math.random()<atkChance){
+    if(isNightmare){
+      const r=Math.random();
+      doAttack(f, r<0.38?'kick':(r<0.72?'punch':'slidekick'));
+    }else{
+      doAttack(f, Math.random()<0.55?'punch':'kick');
+    }
+  }
+  if(foe.attacking && dist<(isNightmare?205:165) && Math.random()<((isNightmare?0.22:0.16)*cfg.block)){ f.blocking=true; mv=0; }
+  if(isNightmare && f.blocking && dist<165 && f.atkCd<=0 && Math.random()<0.075){ f.blocking=false; doAttack(f, Math.random()<0.55?'punch':'kick'); }
+  if(f.onGround && Math.random()<cfg.jump){ f.vy=-15; f.onGround=false; }
+
+  f.x += mv*cfg.move;
   setRun(f, mv!==0);
   clampX(f);
 }
@@ -739,7 +818,7 @@ function stepAI(f){
 function doAttack(f,type){
   f.attacking=type; f.crouching=false;
   const special = ['lowpunch','slidekick','airpunch','airkick'].includes(type);
-  f.atkCd = f.isP1 ? (special?28:22) : 54;
+  f.atkCd = f.isP1 ? (special?28:22) : ((DIFFICULTY[F.difficulty||currentDifficulty]||DIFFICULTY.normal).cooldown);
   const contactMap={punch:135,kick:185,lowpunch:155,slidekick:210,airpunch:145,airkick:210};
   f.atkContact = performance.now() + (contactMap[type]||150);
   f.atkHitDone=false;
@@ -811,9 +890,12 @@ function checkHit(att,def){
     }else{
       let dmgMap={punch:9,kick:13,lowpunch:7,slidekick:11,airpunch:10,airkick:15};
       let dmg=dmgMap[att.attacking]||9;
-      if(!att.isP1) dmg=Math.round(dmg*0.68);   // AI daha yumuşak hasar verir
+      const activeDifficulty=F.difficulty||currentDifficulty;
+      if(!att.isP1) dmg=Math.round(dmg*((DIFFICULTY[activeDifficulty]||DIFFICULTY.normal).damage));   // AI hasarı zorluğa göre değişir
+      if(att.isP1 && activeDifficulty==='nightmare') dmg=Math.max(1,Math.round(dmg*0.72)); // Kabus'ta rakip daha dayanıklı
       def.hp=Math.max(0,def.hp-dmg);
-      def.hitlock=10; def.x += (att.facing)*14; clampX(def);
+      def.hitlock=(!att.isP1 && (F.difficulty||currentDifficulty)==='nightmare')?16:10;
+      def.x += (att.facing)*((!att.isP1 && (F.difficulty||currentDifficulty)==='nightmare')?22:14); clampX(def);
       sfxHit(); showFx(def, att.attacking&&att.attacking.includes('kick')?'💥':'👊');
       const db=def.el.querySelector('.body');
       db.classList.remove('hurt'); void db.offsetWidth; db.classList.add('hurt');
@@ -922,7 +1004,7 @@ function updatePips(){
 }
 
 /* ---------- GİRİŞ ---------- */
-document.addEventListener('keydown',e=>{ const k=KMAP[e.code]; if(k){KEYS[k]=true; if(['jump','punch','kick','crouch','block'].includes(k))e.preventDefault();} });
+document.addEventListener('keydown',e=>{ checkCheatCode(e); const k=KMAP[e.code]; if(k){KEYS[k]=true; if(['jump','punch','kick','crouch','block'].includes(k))e.preventDefault();} });
 document.addEventListener('keyup',e=>{ const k=KMAP[e.code]; if(k)KEYS[k]=false; });
 
 function setupTouch(){
