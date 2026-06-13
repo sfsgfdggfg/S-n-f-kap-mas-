@@ -105,6 +105,8 @@
   .fighter{position:absolute;bottom:8%;width:var(--fw);height:var(--fh);
     transition:none;will-change:transform,left;z-index:5;}
   .fighter .body{position:absolute;bottom:0;left:50%;transform:translateX(-50%);}
+  .fighter.dodging{animation:dodgeBlink .34s ease-out;}
+  @keyframes dodgeBlink{0%{filter:drop-shadow(0 0 0 #fff);opacity:1;}45%{filter:drop-shadow(0 0 14px #ffffffcc);opacity:.55;}100%{opacity:1;}}
   /* HUD */
   #hud{position:absolute;top:0;left:0;right:0;padding:10px 12px;z-index:20;
     display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none;}
@@ -386,6 +388,7 @@
       <p><b>Saldırı:</b> Z yumruk, X tekme, C blok.</p>
       <p><b>Zorluk:</b> Ana ekrandan Kolay, Orta veya Zor seçebilirsin.</p>
       <p><b>Özel hareketler:</b> ↓+Z alçak yumruk, ↓+X kayarak tekme, zıplarken Z hava yumruğu, zıplarken X uçan tekme.</p>
+      <p><b>Şans:</b> Hem oyuncu hem rakip %10 sıyrılabilir ve %10 kritik vuruş yapabilir.</p>
     </div>
     <button class="bigbtn" onclick="backTitle()">Geri</button>
   </div>
@@ -450,6 +453,10 @@ const DIFFICULTY = {
   hard:      {label:'Zor',    note:'Zor: rakip daha agresif, daha hızlı ve daha iyi blok yapar', pause:0.005, move:3.25, attack:1.35, block:1.45, damage:0.82, cooldown:43, jump:0.0015},
   nightmare: {label:'Kabus',  note:'Kabus: gizli zorluk! Rakip acımasız: çok hızlı yaklaşır, sık saldırır, iyi blok yapar ve sert vurur', pause:0.000, move:5.15, attack:3.45, block:4.20, damage:1.55, cooldown:16, jump:0.0045}
 };
+const DODGE_CHANCE = 0.10;      // Hem oyuncu hem rakip için %10 saldırıdan sıyrılma
+const DODGE_PITY_AFTER = 9;     // 9 başarısız sıyrılma denemesinden sonra sonraki uygun vuruşta sıyrılma garantisi
+const CRIT_CHANCE = 0.10;       // Hem oyuncu hem rakip için %10 kritik vuruş
+const CRIT_MULTIPLIER = 1.8;    // kritik vuruş hasar çarpanı
 function setDifficulty(level){
   if(!DIFFICULTY[level]) level='normal';
   if(level==='nightmare') unlockNightmareDifficulty(false);
@@ -500,6 +507,7 @@ function sfxPunch(){ tone(160,0.12,'square',0.25,-60); }
 function sfxKick(){ tone(110,0.16,'sawtooth',0.25,-40); }
 function sfxHit(){ tone(90,0.18,'square',0.3,-30); tone(300,0.05,'square',0.15); }
 function sfxBlock(){ tone(500,0.08,'square',0.15); tone(380,0.06,'square',0.12); }
+function sfxWhoosh(){ tone(760,0.07,'sine',0.16,-520); tone(420,0.09,'sine',0.12,-360); }
 function sfxJump(){ tone(300,0.15,'sine',0.2,260); }
 function sfxBell(){ tone(880,0.4,'sine',0.25); tone(1320,0.4,'sine',0.15); }
 function sfxWin(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>tone(f,0.25,'square',0.22),i*120)); }
@@ -626,7 +634,7 @@ function makeFighter(char, x, facing, isP1){
   document.getElementById('arena').appendChild(el);
   return {char,el,x,facing,vy:0,y:0,hp:100,
     attacking:false,blocking:false,crouching:false,hitlock:0,atkCd:0,onGround:true,isP1,
-    state:'idle'};
+    dodgeMisses:0, state:'idle'};
 }
 
 let pad={left:false,right:false}; // touch hold
@@ -884,19 +892,42 @@ function checkHit(att,def){
   const facingFoe=(att.facing===1 && fcenter(def)>fcenter(att))||(att.facing===-1 && fcenter(def)<fcenter(att));
   if(dist<reach && sameLevel && facingFoe){
     att.atkHitDone=true; // tek vuruş
-    if(def.blocking){
+    // Sıyrılma artık bloktan ÖNCE kontrol ediliyor.
+    // Önceki sürümde karakter blok yapıyorsa dodge şansı hiç çalışmıyordu;
+    // bu yüzden özellikle rakibin sıyrılması çok nadir görünüyordu.
+    // Saf %10 bazen uzun süre hiç görünmeyebiliyor.
+    // Bu yüzden %10 roll korunuyor, ama 7 başarısız denemeden sonra
+    // sonraki uygun vuruşta sıyrılma garantisi veriliyor.
+    const dodgeRoll = Math.random() < DODGE_CHANCE;
+    const dodgePity = (def.dodgeMisses||0) >= DODGE_PITY_AFTER;
+    const dodged = dodgeRoll || dodgePity;
+    if(dodged){
+      def.dodgeMisses=0;
+      // Hem oyuncu hem rakip için sıyrılma: vuruş boşa gider, hasar alınmaz
+      sfxWhoosh();
+      def.el.classList.remove('dodging'); void def.el.offsetWidth; def.el.classList.add('dodging');
+      setTimeout(()=>def.el.classList.remove('dodging'),360);
+      showFx(def, def.isP1 ? '💨 OYUNCU SIYRILDI!' : '💨 RAKİP SIYRILDI!', -18);
+      def.x += (att.facing)*34; clampX(def);
+    }else if(def.blocking){
+      def.dodgeMisses=(def.dodgeMisses||0)+1;
       sfxBlock(); showFx(def,'🛡',-10);
       def.hp=Math.max(0,def.hp-1);
     }else{
+      def.dodgeMisses=(def.dodgeMisses||0)+1;
       let dmgMap={punch:9,kick:13,lowpunch:7,slidekick:11,airpunch:10,airkick:15};
       let dmg=dmgMap[att.attacking]||9;
       const activeDifficulty=F.difficulty||currentDifficulty;
       if(!att.isP1) dmg=Math.round(dmg*((DIFFICULTY[activeDifficulty]||DIFFICULTY.normal).damage));   // AI hasarı zorluğa göre değişir
       if(att.isP1 && activeDifficulty==='nightmare') dmg=Math.max(1,Math.round(dmg*0.72)); // Kabus'ta rakip daha dayanıklı
+      // Hem oyuncu hem rakip saldırırken %10 kritik vurabilir
+      const critical = Math.random() < CRIT_CHANCE;
+      if(critical) dmg=Math.max(1,Math.round(dmg*CRIT_MULTIPLIER));
       def.hp=Math.max(0,def.hp-dmg);
       def.hitlock=(!att.isP1 && (F.difficulty||currentDifficulty)==='nightmare')?16:10;
       def.x += (att.facing)*((!att.isP1 && (F.difficulty||currentDifficulty)==='nightmare')?22:14); clampX(def);
-      sfxHit(); showFx(def, att.attacking&&att.attacking.includes('kick')?'💥':'👊');
+      sfxHit();
+      showFx(def, critical ? (att.isP1 ? 'KRİTİK! 💥' : 'RAKİP KRİTİK! 💥') : (att.attacking&&att.attacking.includes('kick')?'💥':'👊'));
       const db=def.el.querySelector('.body');
       db.classList.remove('hurt'); void db.offsetWidth; db.classList.add('hurt');
       document.getElementById('arena').classList.add('shake');
