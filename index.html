@@ -397,6 +397,7 @@
       <div class="ctitle">🎮 Oyun Modu</div>
       <div class="modeBtns">
         <button class="modeBtn sel" data-mode="single" onclick="setGameMode('single')">Tek Kişilik</button>
+        <button class="modeBtn" data-mode="endless" onclick="setGameMode('endless')">Sonsuz Mod</button>
         <button class="modeBtn" data-mode="local" onclick="setGameMode('local')">2 Kişilik</button>
       </div>
     </div>
@@ -689,7 +690,9 @@ function setGameMode(mode){
   const note=document.getElementById('controlsNote');
   if(note) note.textContent = mode==='local'
     ? '2 kişilik: P1 = WASD + F/G/H + R, P2 = Oklar + J/K/L + O.'
-    : 'Tek kişilik: ok tuşları veya WASD; Z/X/C saldırı. V ultimate. ↓+Z/↓+X ve zıplarken Z/X özel hareket yapar.';
+    : (mode==='endless'
+      ? 'Sonsuz Mod: tek kişilik kontroller. Rakipler bitmez; raund kazanınca sadece %25 can yenilenir.'
+      : 'Tek kişilik: ok tuşları veya WASD; Z/X/C saldırı. V ultimate. ↓+Z/↓+X ve zıplarken Z/X özel hareket yapar.');
   const diffBox=document.querySelector('.difficultyBox');
   if(diffBox) diffBox.style.display = mode==='local' ? 'none' : '';
   if(document.getElementById('selectScreen')?.classList.contains('active')) buildGrid();
@@ -719,10 +722,12 @@ function buildGrid(){
   const g=document.getElementById('charGrid'); g.innerHTML='';
   const fightBtn=document.getElementById('fightBtn');
   const title=document.getElementById('selectTitle'), hint=document.getElementById('selectHint');
-  if(title) title.textContent = gameMode==='local' ? '2 Kişilik Karakter Seç' : 'Karakterini Seç';
+  if(title) title.textContent = gameMode==='local' ? '2 Kişilik Karakter Seç' : (gameMode==='endless' ? 'Sonsuz Mod Karakterini Seç' : 'Karakterini Seç');
   if(hint) hint.innerHTML = gameMode==='local'
     ? 'Önce <b>P1</b>, sonra <b>P2</b> karakterini seç. Aynı karakter iki kişide olamaz.'
-    : 'Bir savaşçı seç, rakibin rastgele gelsin!';
+    : (gameMode==='endless'
+      ? 'Bir karakter seç. Rakipler bitmez; kaç raund dayanacağını gör!'
+      : 'Bir savaşçı seç, rakibin rastgele gelsin!');
   CHARS.forEach(c=>{
     const d=document.createElement('div'); d.className='card'; d.dataset.id=c.id;
     d.innerHTML=`<span class="pickBadge p1">P1</span><span class="pickBadge p2">P2</span><div class="face"><img src="${HEAD_IMGS[c.id]}" alt="${c.name}"></div><div class="nm">${c.name}</div>${statBars(c)}`;
@@ -744,7 +749,7 @@ function buildGrid(){
     g.appendChild(d);
   });
   refreshSelectionCards();
-  document.getElementById('bossHint').textContent = gameMode==='local' ? 'P1 ve P2 seçilince dövüş başlayabilir.' : '';
+  document.getElementById('bossHint').textContent = gameMode==='local' ? 'P1 ve P2 seçilince dövüş başlayabilir.' : (gameMode==='endless' ? 'Sonsuz Kapışma: her galibiyette sadece %25 can yenilenir.' : '');
 }
 function refreshSelectionCards(){
   const fightBtn=document.getElementById('fightBtn');
@@ -762,7 +767,7 @@ function refreshSelectionCards(){
   }else{
     const ok=!!selected;
     fightBtn.disabled=!ok; fightBtn.style.opacity=ok?1:.4;
-    fightBtn.textContent='DÖVÜŞ!';
+    fightBtn.textContent=gameMode==='endless'?'SONSUZ BAŞLA!':'DÖVÜŞ!';
   }
 }
 
@@ -908,11 +913,31 @@ function pickFinalChallengeOpponents(){
   const shuffled=[...pool].sort(()=>Math.random()-0.5);
   return shuffled.slice(0,2);
 }
+
+function pickEndlessOpponent(){
+  const base = F && F.p1char ? F.p1char.id : (selected ? selected.id : null);
+  const pool = CHARS.filter(c=>c.id!==base);
+  return pool[Math.floor(Math.random()*pool.length)] || CHARS[0];
+}
+function getEndlessBest(){
+  try{return Number(localStorage.getItem('sinifKapismasiEndlessBest')||0)||0;}catch(e){return 0;}
+}
+function setEndlessBest(v){
+  try{localStorage.setItem('sinifKapismasiEndlessBest', String(v));}catch(e){}
+}
+function endlessScale(){
+  const r=(F && F.endlessRound) ? F.endlessRound : 1;
+  return Math.max(0, Math.floor((r-1)/3));
+}
 function startFight(){
   clearInputState();
   if(gameMode==='local'){
     if(!selectedP1 || !selectedP2 || selectedP1.id===selectedP2.id) return;
     F={mode:'local',p1char:selectedP1,p2char:selectedP2,round:1,wins1:0,wins2:0,boss:false,difficulty:'local'};
+  }else if(gameMode==='endless'){
+    if(!selected) return;
+    F={mode:'endless',p1char:selected,p2char:null,round:1,wins1:0,wins2:0,boss:false,difficulty:currentDifficulty,endlessRound:1,endlessScore:0,carryHp:null,carryUlt:0};
+    F.p2char=pickEndlessOpponent();
   }else{
     if(!selected) return;
     const campaign=CHARS.filter(c=>c.id!==selected.id); // final öncesi herkesle sırayla dövüş
@@ -928,6 +953,9 @@ function rematch(){
   clearInputState();
   if(F.mode==='local'){
     F={...F,round:1,wins1:0,wins2:0,boss:false,difficulty:'local'};
+  }else if(F.mode==='endless'){
+    F={...F,round:1,wins1:0,wins2:0,boss:false,difficulty:currentDifficulty,endlessRound:1,endlessScore:0,carryHp:null,carryUlt:0};
+    F.p2char=pickEndlessOpponent();
   }else{
     F={...F,stage:0,p2char:F.campaign?F.campaign[0]:F.p2char,round:1,wins1:0,wins2:0,boss:false,finalChallenge:false,finalIndex:0,finalQueue:[],difficulty:currentDifficulty};
   }
@@ -942,13 +970,17 @@ function startRound(){
   const W=ARENA_W();
   F.p1=makeFighter(F.p1char, W*0.22, 1, true);
   F.p2=makeFighter(F.p2char, W*0.66, -1, false);
+  if(F.mode==='endless' && F.carryHp!==null){
+    F.p1.hp=Math.max(1,Math.min(F.p1.maxHp,Math.round(F.carryHp)));
+    F.p1.ult=Math.max(0,Math.min(100,Math.round(F.carryUlt||0)));
+  }
   setFacing(F.p1,1); setFacing(F.p2,-1);
   F.timer=60; F.running=false; F.over=false;
-  document.getElementById('p1name').textContent=F.mode==='local'?`${F.p1char.name} (P1)`:F.p1char.name;
-  document.getElementById('p2name').textContent=F.mode==='local'?`${F.p2char.name} (P2)`:(F.finalChallenge?`${F.p2char.name} (Son Teneffüs ${F.finalIndex+1}/2)`:(F.boss?'Gökşen Hoca 👑':`${F.p2char.name} (${(F.stage||0)+1}/${F.campaign?F.campaign.length:1})`));
+  document.getElementById('p1name').textContent=F.mode==='local'?`${F.p1char.name} (P1)`:(F.mode==='endless'?`${F.p1char.name} • Raund ${F.endlessRound}`:F.p1char.name);
+  document.getElementById('p2name').textContent=F.mode==='local'?`${F.p2char.name} (P2)`:(F.mode==='endless'?`${F.p2char.name} (Sonsuz)`:(F.finalChallenge?`${F.p2char.name} (Son Teneffüs ${F.finalIndex+1}/2)`:(F.boss?'Gökşen Hoca 👑':`${F.p2char.name} (${(F.stage||0)+1}/${F.campaign?F.campaign.length:1})`)));
   F.assists=[];
   updateHP(); updateTimer(); updatePips(); updateUlt();
-  banner(F.finalChallenge?'SON TENEFFÜS!':(F.boss?'DİKKAT! BOSS!':'HAZIR?'), ()=>{
+  banner(F.mode==='endless'?`SONSUZ ${F.endlessRound}`:(F.finalChallenge?'SON TENEFFÜS!':(F.boss?'DİKKAT! BOSS!':'HAZIR?')), ()=>{
     if(F.boss){ bossSequence(); return; }
     banner('DÖVÜŞ!', ()=>{ F.running=true; });
     F.running=false;
@@ -1070,8 +1102,12 @@ function stepPlayer(f, keys=KEYS, padObj=pad){
 /* ---------- AI (adil/kolay - oyuncu çoğu zaman kazanır) ---------- */
 function stepAI(f){
   if(f.hitlock>0){ f.hitlock--; return; }
-  const cfg=DIFFICULTY[F.difficulty||currentDifficulty]||DIFFICULTY.normal;
+  let cfg=DIFFICULTY[F.difficulty||currentDifficulty]||DIFFICULTY.normal;
   const isNightmare=(F.difficulty||currentDifficulty)==='nightmare';
+  if(F.mode==='endless'){
+    const s=endlessScale();
+    cfg={...cfg, pause:Math.max(0,cfg.pause*(1-0.12*s)), move:cfg.move*(1+0.07*s), attack:cfg.attack*(1+0.12*s), block:cfg.block*(1+0.04*s), damage:cfg.damage*(1+0.08*s), cooldown:Math.max(14,Math.round(cfg.cooldown*(1-0.06*s))), jump:cfg.jump*(1+0.06*s)};
+  }
   const foe=F.p1;
   const dist=Math.abs(fcenter(f)-fcenter(foe));
   f._ai=(f._ai||0)+1;
@@ -1118,7 +1154,12 @@ function doAttack(f,type){
   f.attacking=type; f.crouching=false;
   const special = ['lowpunch','slidekick','airpunch','airkick'].includes(type);
   const spd=fighterStat(f,'speed',1);
-  f.atkCd = (F.mode==='local' || f.isP1 || f.isAssist) ? Math.max(14,Math.round((special?28:22)/spd)) : Math.max(10,Math.round(((DIFFICULTY[F.difficulty||currentDifficulty]||DIFFICULTY.normal).cooldown)/spd));
+  if(F.mode==='local' || f.isP1 || f.isAssist) f.atkCd=Math.max(14,Math.round((special?28:22)/spd));
+  else{
+    let cd=(DIFFICULTY[F.difficulty||currentDifficulty]||DIFFICULTY.normal).cooldown;
+    if(F.mode==='endless') cd=Math.max(14,Math.round(cd*(1-0.06*endlessScale())));
+    f.atkCd=Math.max(10,Math.round(cd/spd));
+  }
   if(f.ultRapidUntil && performance.now()<f.ultRapidUntil) f.atkCd=Math.max(6,Math.round(f.atkCd*0.55));
   const contactMap={punch:135,kick:185,lowpunch:155,slidekick:210,airpunch:145,airkick:210};
   f.atkContact = performance.now() + (contactMap[type]||150);
@@ -1222,6 +1263,7 @@ function checkHit(att,def){
       dmg = Math.max(1, Math.round(dmg * fighterStat(att,'power',1)));
       const activeDifficulty=F.difficulty||currentDifficulty;
       if(!att.isP1 && F.mode!=='local') dmg=Math.round(dmg*((DIFFICULTY[activeDifficulty]||DIFFICULTY.normal).damage));   // AI hasarı zorluğa göre değişir
+      if(!att.isP1 && F.mode==='endless') dmg=Math.round(dmg*(1+0.08*endlessScale()));
       if(att.isP1 && activeDifficulty==='nightmare') dmg=Math.max(1,Math.round(dmg*0.72)); // Kabus'ta rakip daha dayanıklı
       // Hem oyuncu hem rakip saldırırken %10 kritik vurabilir
       const critical = Math.random() < fighterStat(att,'crit',CRIT_CHANCE);
@@ -1423,6 +1465,11 @@ function roundEnd(p1won){
   loser.el.style.opacity=.4;
   updatePips();
   setTimeout(()=>{
+    if(F.mode==='endless'){
+      if(p1won) advanceEndless();
+      else endFight(false, false);
+      return;
+    }
     if(F.wins1>=2 || F.wins2>=2){
       if(F.mode==='local'){
         endFight(F.wins1>=2, false);
@@ -1435,6 +1482,21 @@ function roundEnd(p1won){
       F.round++; F.over=false; banner('RAUNT '+F.round, ()=>{ startRound(); });
     }
   },1100);
+}
+
+function advanceEndless(){
+  F.endlessScore=(F.endlessScore||0)+1;
+  const heal=Math.round(F.p1.maxHp*0.25);
+  F.carryHp=Math.min(F.p1.maxHp, F.p1.hp + heal);
+  F.carryUlt=F.p1.ult||0;
+  F.endlessRound=(F.endlessRound||1)+1;
+  F.p2char=pickEndlessOpponent();
+  F.round=1; F.wins1=0; F.wins2=0; F.over=false;
+  banner(`Dayandığın raund: ${F.endlessScore} 🏆`, ()=>{
+    banner(`+%25 can yenilendi`, ()=>{
+      banner(`Sıradaki: ${F.p2char.name}`, ()=>{ startRound(); });
+    });
+  });
 }
 
 function advanceCampaign(){
@@ -1506,6 +1568,14 @@ function endFight(won, escaped){
     t.className='win';
     p.textContent = winner + ' bu maçın galibi oldu!';
     sfxWin();
+  }else if(F.mode==='endless'){
+    const score=F.endlessScore||0;
+    const oldBest=getEndlessBest();
+    const best=Math.max(oldBest,score);
+    if(best>oldBest) setEndlessBest(best);
+    t.textContent='SONSUZ KAPIŞMA BİTTİ!'; t.className=score>0?'win':'lose';
+    p.innerHTML=`Dayanılan raund: <b>${score}</b><br>En iyi skor: <b>${best}</b>`;
+    sfxLose();
   }else if(escaped){
     t.textContent='GÖKŞEN HOCA GELDİ'; t.className='win';
     p.innerHTML='Kapışma sona erdi.<br>Sınıf dağıldı!';
@@ -1532,6 +1602,11 @@ function updateHP(){
 }
 function updateTimer(){ document.getElementById('timer').textContent=Math.max(0,F.timer); }
 function updatePips(){
+  if(F.mode==='endless'){
+    document.getElementById('roundPips').innerHTML=`<span class="pip win"></span><span style="color:#fff;font-size:12px;text-shadow:1px 1px 0 #000">${F.endlessScore||0}</span>`;
+    document.getElementById('roundPips2').innerHTML='';
+    return;
+  }
   const mk=(n,w)=>{let s='';for(let i=0;i<2;i++)s+=`<span class="pip ${i<w?'win':''}"></span>`;return s;};
   document.getElementById('roundPips').innerHTML=mk(2,F.wins1);
   document.getElementById('roundPips2').innerHTML=mk(2,F.wins2);
