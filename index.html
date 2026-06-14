@@ -371,6 +371,7 @@
   .modeBtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
   .modeBtn{background:#ffffff18;color:#fff;border:2px solid #ffffff44;border-radius:12px;
     padding:8px 12px;font-weight:bold;font-family:inherit;cursor:pointer;box-shadow:0 3px 0 #0005;}
+  .modeBtn.secret{display:none!important;}
   .modeBtn.sel{background:var(--accent2);color:#4a3500;border-color:#fff3;}
   .card.p1sel{border-color:#60d6ff;box-shadow:0 0 16px #60d6ff99;transform:translateY(-4px);}
   .card.p2sel{border-color:#ff7b7b;box-shadow:0 0 16px #ff7b7b99;transform:translateY(-4px);}
@@ -379,6 +380,35 @@
   .card.p1sel .pickBadge.p1{display:block;background:#60d6ff;color:#062836;}
   .card.p2sel .pickBadge.p2{display:block;background:#ff7b7b;color:#3a0505;}
   .localHelp{color:#ffd;font-size:min(3.4vw,14px);text-align:center;margin-top:5px;}
+
+
+  /* ---------- AGK DÜNYASI ---------- */
+  .agkPanel{max-width:860px;width:min(94vw,860px);background:#fff6e8;color:#1d2430;border:5px solid #1a1a1a;border-radius:22px;padding:18px;box-shadow:10px 10px 0 #0005;margin-bottom:16px;text-align:left;}
+  .agkTop{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:10px;font-weight:bold;}
+  .agkBadge{background:#1d2430;color:#ffce3a;border-radius:999px;padding:6px 12px;border:2px solid #000;box-shadow:0 2px 0 #0004;}
+  .agkGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .agkBox{background:#fff;border:3px solid #1a1a1a;border-radius:16px;padding:12px;min-height:96px;box-shadow:4px 4px 0 #0002;}
+  .agkBox h3{margin:0 0 8px;color:#c0392b;font-size:min(4.8vw,22px);}
+  .agkItem{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px dashed #bbb;padding:7px 0;font-size:min(3.7vw,15px);}
+  .agkItem:first-child{border-top:none;}
+  .agkItemTxt{min-width:0;line-height:1.25;}
+  .agkSmall{font-size:min(3.5vw,14px);opacity:.85;}
+  #agkInventory{max-height:270px;overflow-y:auto;padding-right:6px;scrollbar-width:thin;}
+  #agkInventory .agkItem{align-items:flex-start;}
+  #agkInventory .agkBtn{flex:0 0 auto;white-space:nowrap;}
+  .agkBtn{background:#e23b3b;color:#fff;border:none;border-radius:10px;padding:7px 10px;font-weight:bold;font-family:inherit;box-shadow:0 3px 0 #962020;cursor:pointer;}
+  .agkBtn.alt{background:#263238;box-shadow:0 3px 0 #0b1114;}
+  .agkQOpts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .agkQOpts button{font-size:min(4vw,18px);}
+  .agkDiffRow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .agkDiffNum{font-size:26px;font-weight:bold;min-width:42px;text-align:center;color:#c0392b;}
+  /* v46: AGK ekranında alt butonlar görünür kalsın */
+  #agkScreen{justify-content:flex-start;overflow-y:auto;padding:12px 0 88px;}
+  #agkScreen h2{margin-top:6px;margin-bottom:10px;font-size:min(8vw,42px);}
+  #agkScreen .selrow{position:sticky;bottom:0;z-index:60;background:linear-gradient(#11161f00,#11161fee 30%,#11161f);padding:10px 0 12px;margin-top:0;width:100%;}
+  #agkScreen .bigbtn{padding:12px 28px;font-size:min(4.8vw,20px);}
+  @media(max-height:760px){#agkScreen h2{font-size:min(6.4vw,30px);margin:0 0 6px;} .agkPanel{margin-bottom:6px;} #agkInventory{max-height:190px;}}
+  @media(max-width:720px){.agkGrid{grid-template-columns:1fr}.agkPanel{padding:12px}.agkItem{align-items:flex-start;flex-direction:column}.agkBtn{width:100%;}#agkInventory{max-height:210px;}#agkInventory .agkItem{gap:6px;} #agkScreen{padding-bottom:104px;} #agkScreen .selrow{gap:8px;} #agkScreen .bigbtn{padding:11px 18px;font-size:min(5vw,18px);}}
 
   @media(max-width:680px){
     .grid{grid-template-columns:repeat(3,1fr);}
@@ -398,6 +428,7 @@
       <div class="modeBtns">
         <button class="modeBtn sel" data-mode="single" onclick="setGameMode('single')">Tek Kişilik</button>
         <button class="modeBtn" data-mode="endless" onclick="setGameMode('endless')">Sonsuz Mod</button>
+        <button class="modeBtn secret" style="display:none" data-mode="agk" onclick="setGameMode('agk')">AGK Dünyası</button>
         <button class="modeBtn" data-mode="local" onclick="setGameMode('local')">2 Kişilik</button>
       </div>
     </div>
@@ -528,6 +559,51 @@
     </div>
   </div>
 
+
+  <!-- AGK DÜNYASI -->
+  <div id="agkScreen" class="screen menuScreen">
+    <h2>AGK DÜNYASI</h2>
+    <div class="agkPanel">
+      <div class="agkTop">
+        <span class="agkBadge" id="agkDayBadge">Gün 1</span>
+        <span class="agkBadge" id="agkAvgBadge">Ortalama seviye: 1</span>
+        <span class="agkBadge" id="agkMsg">Ders zamanı!</span>
+      </div>
+      <div class="agkGrid">
+        <div class="agkBox">
+          <h3>📚 Ders</h3>
+          <div id="agkQuestion">Soru hazırlanıyor...</div>
+          <div class="agkQOpts" id="agkOptions"></div>
+          <p class="agkSmall">Doğru cevap: bütün kıyafetlerin ortalamasının +1 seviyesi kıyafet kazandırır.</p>
+        </div>
+        <div class="agkBox">
+          <h3>🎽 Teneffüste Hazırlık</h3>
+          <div id="agkEquipped"></div>
+          <p class="agkSmall" id="agkMults"></p>
+        </div>
+        <div class="agkBox">
+          <h3>🎒 Çanta</h3>
+          <div id="agkInventory"></div>
+        </div>
+        <div class="agkBox">
+          <h3>🥊 Teneffüste Dövüş</h3>
+          <div class="agkDiffRow">
+            <button class="agkBtn alt" onclick="agkChangeDiff(-1)">−</button>
+            <span class="agkDiffNum" id="agkDiffNum">1</span>
+            <button class="agkBtn alt" onclick="agkChangeDiff(1)">+</button>
+          </div>
+          <p class="agkSmall" id="agkDiffInfo">Zorluk 1 → Seviye 1–3 kıyafet</p>
+          <button class="agkBtn" style="margin-top:8px;width:100%" onclick="agkStartFight()">Bu zorlukta dövüş</button>
+          <p class="agkSmall">Zorluklar sonsuzdur. Fark sadece rakibin canı ve hasarıdır.</p>
+        </div>
+      </div>
+    </div>
+    <div class="selrow">
+      <button class="bigbtn alt" onclick="goSelect()">Karakter Seç</button>
+      <button class="bigbtn alt" onclick="backTitle()">Ana Menü</button>
+    </div>
+  </div>
+
   <!-- HOW TO PLAY -->
   <div id="howToScreen" class="screen menuScreen">
     <h2>Nasıl Oynanır?</h2>
@@ -538,6 +614,7 @@
       <p><b>Zorluk:</b> Ana ekrandan Kolay, Orta veya Zor seçebilirsin.</p>
       <p><b>Özel hareketler:</b> ↓+Z alçak yumruk, ↓+X kayarak tekme, zıplarken Z hava yumruğu, zıplarken X uçan tekme.</p>
       <p><b>2 kişilik:</b> P1 = A/D hareket, W zıpla, S eğil, F yumruk, G tekme, H blok. P2 = Oklar, J/K/L.</p>
+      <p><b>AGK Dünyası:</b> Ders sorusu çözerek ve teneffüs dövüşlerini kazanarak kıyafet al. Her slotta bir kıyafet giyilir; etkiler çarpan olarak çalışır.</p>
       <p><b>İstatistikler:</b> Karakterlerin sadece Can, Hasar ve Şans değerleri farklıdır. Ağır karakterler daha dayanıklı ve güçlü; hafif karakterler daha şanslıdır.</p>
       <p><b>Şans:</b> Hem oyuncu hem rakip %10 sıyrılabilir ve %10 kritik vuruş yapabilir.</p>
     </div>
@@ -614,6 +691,137 @@ const DODGE_CHANCE = 0.10;      // Hem oyuncu hem rakip için %10 saldırıdan s
 const DODGE_PITY_AFTER = 9;     // 9 başarısız sıyrılma denemesinden sonra sonraki uygun vuruşta sıyrılma garantisi
 const CRIT_CHANCE = 0.10;       // Hem oyuncu hem rakip için %10 kritik vuruş
 const CRIT_MULTIPLIER = 1.6;    // kritik vuruş hasar çarpanı; şans karakterleri fazla güçlenmesin diye dengelendi
+
+
+/* ---------- AGK DÜNYASI: KIYAFET SİSTEMİ ---------- */
+const AGK_SLOTS = ['Şapka','Üst','Alt','Ayakkabı','Diğer'];
+const AGK_RARITIES = [
+  {name:'Sıradan', mult:1.00, effects:1, weight:48},
+  {name:'Sıra dışı', mult:1.10, effects:1, weight:28},
+  {name:'Nadir', mult:1.25, effects:1, weight:15},
+  {name:'Epik', mult:1.30, effects:2, weight:7},
+  {name:'Efsanevi', mult:1.50, effects:3, weight:2}
+];
+const AGK_EFFECTS = [
+  {key:'hp', label:'Sağlık', base:0.040},
+  {key:'power', label:'Hasar', base:0.032},
+  {key:'luck', label:'Şans', base:0.026},
+  {key:'ult', label:'Ultimate etkisi', base:0.030}
+];
+const AGK_NAMES = {
+  'Şapka':['Kırmızı Kep','Teneffüs Şapkası','Sınıf Kaptanı Kepi','Kabus Bere'],
+  'Üst':['Kapışma Forması','Kantin Montu','Ders Zırhı','AGK Ceketi'],
+  'Alt':['Hızlı Eşofman','Koridor Pantolonu','Dayanıklı Kot','Şampiyon Altı'],
+  'Ayakkabı':['Zil Ayakkabısı','Sprint Sneaker','Tebeşir Taban','Uçan Ayakkabı'],
+  'Diğer':['Şans Bilekliği','Dijital Saat','Taktik Bileklik','AGK Saati']
+};
+const AGK_QUESTIONS = [
+  {q:'3/4 + 1/4 = ?', opts:['1/2','1','2'], a:1},
+  {q:'%25 hangi kesre eşittir?', opts:['1/2','1/4','3/4'], a:1},
+  {q:'2x + 3x = ?', opts:['5x','6x','x²'], a:0},
+  {q:'12 sayısının %50’si kaçtır?', opts:['4','6','8'], a:1},
+  {q:'-2 + 5 = ?', opts:['-7','3','7'], a:1},
+  {q:'3 kalem 24 TL ise 1 kalem kaç TL?', opts:['6','8','12'], a:1}
+];
+let AGK = null;
+function agkDefault(){ return {day:1, fightDiff:1, inventory:[], equipped:{'Şapka':null,'Üst':null,'Alt':null,'Ayakkabı':null,'Diğer':null}, questionDone:false, lastMsg:'Ders zamanı!'}; }
+function agkSave(){ try{localStorage.setItem('sinifKapismasiAGK', JSON.stringify(AGK));}catch(e){} }
+function agkLoad(){
+  try{ const x=JSON.parse(localStorage.getItem('sinifKapismasiAGK')||'null'); if(x && x.inventory && x.equipped) return x; }catch(e){}
+  return agkDefault();
+}
+function agkInit(){ AGK=agkLoad(); if(!AGK.inventory.length){ agkGrantItem(1,'Sıradan',false); agkGrantItem(1,'Sıradan',false); AGK.lastMsg='Başlangıç için iki kıyafet verildi.'; agkSave(); } }
+function agkPickRarity(){
+  const total=AGK_RARITIES.reduce((s,r)=>s+r.weight,0); let roll=Math.random()*total;
+  for(const r of AGK_RARITIES){ roll-=r.weight; if(roll<=0) return r; }
+  return AGK_RARITIES[0];
+}
+function agkItemMult(effectKey, level, rarityName){
+  const e=AGK_EFFECTS.find(x=>x.key===effectKey)||AGK_EFFECTS[0];
+  const r=AGK_RARITIES.find(x=>x.name===rarityName)||AGK_RARITIES[0];
+  return +(1 + e.base*r.mult*Math.pow(1.045, Math.max(0,level-1))).toFixed(3);
+}
+function agkGrantItem(level=1, rarityName=null, save=true){
+  const slot=AGK_SLOTS[Math.floor(Math.random()*AGK_SLOTS.length)];
+  const rarity= rarityName ? (AGK_RARITIES.find(r=>r.name===rarityName)||AGK_RARITIES[0]) : agkPickRarity();
+  const effects=[...AGK_EFFECTS].sort(()=>Math.random()-0.5).slice(0,rarity.effects).map(e=>({key:e.key,label:e.label,mult:agkItemMult(e.key,level,rarity.name)}));
+  const arr=AGK_NAMES[slot]||['Kıyafet'];
+  const item={id:'agk_'+Date.now()+'_'+Math.floor(Math.random()*99999), slot, name:arr[Math.floor(Math.random()*arr.length)], rarity:rarity.name, level:Math.max(1,Math.round(level)), effects};
+  AGK.inventory.push(item);
+  if(!AGK.equipped[slot]) AGK.equipped[slot]=item.id;
+  AGK.lastMsg=`Yeni kıyafet: ${item.rarity} ${item.name} Lv.${item.level}`;
+  if(save) agkSave();
+  return item;
+}
+function agkAllItems(){ return AGK ? AGK.inventory : []; }
+function agkAvgLevel(){
+  const items=agkAllItems(); if(!items.length) return 1;
+  return Math.max(1, Math.round(items.reduce((s,i)=>s+(i.level||1),0)/items.length));
+}
+function agkEquippedItems(){
+  if(!AGK) return [];
+  return AGK_SLOTS.map(slot=>AGK.inventory.find(i=>i.id===AGK.equipped[slot])).filter(Boolean);
+}
+function agkMult(key){
+  if(!AGK) return 1;
+  let m=1;
+  agkEquippedItems().forEach(item=>item.effects.forEach(e=>{ if(e.key===key) m*=e.mult; }));
+  return m;
+}
+function agkStatLine(){
+  const f=k=>agkMult(k).toFixed(2);
+  return `Sağlık x${f('hp')} • Hasar x${f('power')} • Şans x${f('luck')} • Ultimate x${f('ult')}`;
+}
+function agkDiffRewardRange(diff){ const min=(diff-1)*3+1; return [min,min+2]; }
+function agkRewardLevelFromDiff(diff){ const [a,b]=agkDiffRewardRange(diff); return a+Math.floor(Math.random()*(b-a+1)); }
+function agkShow(msg){
+  if(!AGK) agkInit();
+  if(msg) AGK.lastMsg=msg;
+  const q=AGK_QUESTIONS[(AGK.day-1)%AGK_QUESTIONS.length];
+  document.getElementById('agkDayBadge').textContent=`Gün ${AGK.day}`;
+  document.getElementById('agkAvgBadge').textContent=`Ortalama seviye: ${agkAvgLevel()}`;
+  document.getElementById('agkMsg').textContent=AGK.lastMsg||'AGK Dünyası';
+  document.getElementById('agkQuestion').innerHTML=AGK.questionDone ? '<b>Ders tamamlandı.</b><br>Şimdi hazırlık yapıp dövüşe geçebilirsin.' : `<b>Soru:</b> ${q.q}`;
+  document.getElementById('agkOptions').innerHTML=AGK.questionDone ? '' : q.opts.map((o,i)=>`<button class="agkBtn alt" onclick="agkAnswer(${i})">${o}</button>`).join('');
+  document.getElementById('agkEquipped').innerHTML=AGK_SLOTS.map(slot=>{
+    const item=AGK.inventory.find(i=>i.id===AGK.equipped[slot]);
+    return `<div class="agkItem"><b>${slot}</b><span>${item?agkItemText(item):'Boş'}</span></div>`;
+  }).join('');
+  document.getElementById('agkMults').textContent=agkStatLine();
+  const invItems=AGK.inventory.slice().sort((a,b)=>b.level-a.level);
+  document.getElementById('agkInventory').innerHTML=AGK.inventory.length ? `<div class="agkSmall" style="padding-bottom:6px;border-bottom:1px dashed #bbb;">Toplam kıyafet: ${AGK.inventory.length}</div>` + invItems.map(item=>`<div class="agkItem"><span class="agkItemTxt">${agkItemText(item)}<br><span class="agkSmall">${item.effects.map(e=>`${e.label} x${e.mult}`).join(' • ')}</span></span><button class="agkBtn" onclick="agkEquip('${item.id}')">Giy</button></div>`).join('') : 'Henüz kıyafet yok.';
+  const [lo,hi]=agkDiffRewardRange(AGK.fightDiff||1);
+  document.getElementById('agkDiffNum').textContent=AGK.fightDiff||1;
+  document.getElementById('agkDiffInfo').textContent=`Zorluk ${AGK.fightDiff||1} → Seviye ${lo}-${hi} kıyafet`;
+  agkSave();
+  show('agkScreen');
+}
+function agkItemText(item){ return `${item.rarity} ${item.name} Lv.${item.level} (${item.slot})`; }
+function agkAnswer(i){
+  const q=AGK_QUESTIONS[(AGK.day-1)%AGK_QUESTIONS.length];
+  AGK.questionDone=true;
+  if(i===q.a){ const lvl=agkAvgLevel()+1; const item=agkGrantItem(lvl,null,false); agkShow(`Doğru! ${item.name} Lv.${item.level} kazandın.`); sfxWin(); }
+  else { agkShow('Yanlış cevap. Bu dersten kıyafet çıkmadı.'); sfxLose(); }
+}
+function agkEquip(id){ const item=AGK.inventory.find(i=>i.id===id); if(!item) return; AGK.equipped[item.slot]=id; agkShow(`${item.name} giyildi.`); }
+function agkChangeDiff(delta){ AGK.fightDiff=Math.max(1,(AGK.fightDiff||1)+delta); agkShow(); }
+function agkOpponent(){ const pool=CHARS.filter(c=>!selected || c.id!==selected.id); return pool[Math.floor(Math.random()*pool.length)]||CHARS[0]; }
+function agkStartFight(){
+  clearInputState();
+  F={mode:'agk',p1char:selected,p2char:agkOpponent(),round:1,wins1:0,wins2:0,boss:false,difficulty:'normal',agkDiff:AGK.fightDiff||1};
+  show('fightScreen'); setupTouch(); startRound();
+}
+function agkAdvanceAfterWin(){
+  const lvl=agkRewardLevelFromDiff(F.agkDiff||1);
+  const item=agkGrantItem(lvl,null,false);
+  AGK.day=(AGK.day||1)+1;
+  AGK.questionDone=false;
+  AGK.lastMsg=`Dövüş kazanıldı! ${item.rarity} ${item.name} Lv.${item.level} aldın.`;
+  agkSave();
+  agkShow(AGK.lastMsg);
+}
+function agkEnemyScale(){ return F && F.mode==='agk' ? Math.max(1,F.agkDiff||1) : 1; }
+function agkUltMult(f){ return (F && F.mode==='agk' && f && f.isP1) ? agkMult('ult') : 1; }
 function setDifficulty(level){
   if(!DIFFICULTY[level]) level='normal';
   if(level==='nightmare') unlockNightmareDifficulty(false);
@@ -624,8 +832,11 @@ function setDifficulty(level){
 }
 
 let nightmareUnlocked=false;
+let agkUnlocked=false;
 let cheatBuffer='';
+let agkCheatBuffer='';
 const CHEAT_CODE='wwssadadba';
+const AGK_CODE='agkdunyasi';
 function unlockNightmareDifficulty(showMessage=true){
   if(nightmareUnlocked) return;
   nightmareUnlocked=true;
@@ -638,11 +849,33 @@ function unlockNightmareDifficulty(showMessage=true){
     if(note) note.textContent='KABUS ZORLUĞU AÇILDI! 😈';
   }
 }
+function unlockAGKMode(showMessage=true){
+  if(agkUnlocked) return;
+  agkUnlocked=true;
+  const btn=document.querySelector('.modeBtn[data-mode="agk"]');
+  if(btn){
+    btn.classList.remove('secret');
+    btn.style.display='';
+  }
+  if(showMessage){
+    setGameMode('agk');
+    sfxBell();
+    const note=document.getElementById('controlsNote');
+    if(note) note.textContent='AGK DÜNYASI AÇILDI! 👕 Kod: agkdunyasi';
+  }
+}
 function checkCheatCode(e){
   const tag=(e.target && e.target.tagName || '').toLowerCase();
   if(tag==='input' || tag==='textarea') return;
   const key=(e.key||'').toLowerCase();
-  if(!'wasdb'.includes(key) || key.length!==1) return;
+  if(key.length!==1) return;
+
+  if(/[a-zğüşöçıİ]/i.test(key)){
+    agkCheatBuffer=(agkCheatBuffer+key).toLowerCase().slice(-AGK_CODE.length);
+    if(agkCheatBuffer===AGK_CODE) unlockAGKMode(true);
+  }
+
+  if(!'wasdb'.includes(key)) return;
   cheatBuffer=(cheatBuffer+key).slice(-CHEAT_CODE.length);
   if(cheatBuffer===CHEAT_CODE) unlockNightmareDifficulty(true);
 }
@@ -684,6 +917,7 @@ function showHowTo(){ show('howToScreen'); }
 function showCredits(){ show('creditsScreen'); }
 function goSelect(){ try{actx();}catch(e){} buildGrid(); show('selectScreen'); }
 function setGameMode(mode){
+  if(mode==='agk' && !agkUnlocked) return;
   gameMode = mode;
   selected=null; selectedP1=null; selectedP2=null;
   document.querySelectorAll('.modeBtn').forEach(b=>b.classList.toggle('sel', b.dataset.mode===mode));
@@ -692,7 +926,9 @@ function setGameMode(mode){
     ? '2 kişilik: P1 = WASD + F/G/H + R, P2 = Oklar + J/K/L + O.'
     : (mode==='endless'
       ? 'Sonsuz Mod: tek kişilik kontroller. Rakipler bitmez; raund kazanınca sadece %25 can yenilenir.'
-      : 'Tek kişilik: ok tuşları veya WASD; Z/X/C saldırı. V ultimate. ↓+Z/↓+X ve zıplarken Z/X özel hareket yapar.');
+      : (mode==='agk'
+        ? 'AGK Dünyası: ders sorusu çöz, kıyafet giy, teneffüste zorluk seçip dövüş.'
+        : 'Tek kişilik: ok tuşları veya WASD; Z/X/C saldırı. V ultimate. ↓+Z/↓+X ve zıplarken Z/X özel hareket yapar.'));
   const diffBox=document.querySelector('.difficultyBox');
   if(diffBox) diffBox.style.display = mode==='local' ? 'none' : '';
   if(document.getElementById('selectScreen')?.classList.contains('active')) buildGrid();
@@ -715,6 +951,10 @@ function fighterStat(f,k,base=1){
   if((k==='dodge' || k==='crit') && typeof stats.luck==='number') value=stats.luck;
   if(k==='power' && f.ultPowerUntil && performance.now()<f.ultPowerUntil) value*=1.5;
   if((k==='dodge' || k==='crit') && f.ultLuckUntil && performance.now()<f.ultLuckUntil) value=Math.min(value*3,0.35);
+  if(F && F.mode==='agk' && f.isP1){
+    if(k==='power') value*=agkMult('power');
+    if(k==='dodge' || k==='crit') value=Math.min(value*agkMult('luck'),0.45);
+  }
   return value;
 }
 
@@ -722,12 +962,14 @@ function buildGrid(){
   const g=document.getElementById('charGrid'); g.innerHTML='';
   const fightBtn=document.getElementById('fightBtn');
   const title=document.getElementById('selectTitle'), hint=document.getElementById('selectHint');
-  if(title) title.textContent = gameMode==='local' ? '2 Kişilik Karakter Seç' : (gameMode==='endless' ? 'Sonsuz Mod Karakterini Seç' : 'Karakterini Seç');
+  if(title) title.textContent = gameMode==='local' ? '2 Kişilik Karakter Seç' : (gameMode==='endless' ? 'Sonsuz Mod Karakterini Seç' : (gameMode==='agk' ? 'AGK Karakterini Seç' : 'Karakterini Seç'));
   if(hint) hint.innerHTML = gameMode==='local'
     ? 'Önce <b>P1</b>, sonra <b>P2</b> karakterini seç. Aynı karakter iki kişide olamaz.'
     : (gameMode==='endless'
       ? 'Bir karakter seç. Rakipler bitmez; kaç raund dayanacağını gör!'
-      : 'Bir savaşçı seç, rakibin rastgele gelsin!');
+      : (gameMode==='agk'
+        ? 'Bir karakter seç. Sonra AGK Dünyası’nda kıyafet kazanıp kombin kur!'
+        : 'Bir savaşçı seç, rakibin rastgele gelsin!'));
   CHARS.forEach(c=>{
     const d=document.createElement('div'); d.className='card'; d.dataset.id=c.id;
     d.innerHTML=`<span class="pickBadge p1">P1</span><span class="pickBadge p2">P2</span><div class="face"><img src="${HEAD_IMGS[c.id]}" alt="${c.name}"></div><div class="nm">${c.name}</div>${statBars(c)}`;
@@ -749,7 +991,7 @@ function buildGrid(){
     g.appendChild(d);
   });
   refreshSelectionCards();
-  document.getElementById('bossHint').textContent = gameMode==='local' ? 'P1 ve P2 seçilince dövüş başlayabilir.' : (gameMode==='endless' ? 'Sonsuz Kapışma: her galibiyette sadece %25 can yenilenir.' : '');
+  document.getElementById('bossHint').textContent = gameMode==='local' ? 'P1 ve P2 seçilince dövüş başlayabilir.' : (gameMode==='endless' ? 'Sonsuz Kapışma: her galibiyette sadece %25 can yenilenir.' : (gameMode==='agk' ? 'AGK: ders → hazırlık → dövüş.' : ''));
 }
 function refreshSelectionCards(){
   const fightBtn=document.getElementById('fightBtn');
@@ -865,7 +1107,9 @@ function makeFighter(char, x, facing, isP1){
   el.style.left=x+'px';
   el.innerHTML=fighterSVG(char,facing);
   document.getElementById('arena').appendChild(el);
-  const maxHp = (char.stats && char.stats.hp) ? char.stats.hp : 100;
+  let maxHp = (char.stats && char.stats.hp) ? char.stats.hp : 100;
+  if(F && F.mode==='agk' && isP1) maxHp=Math.round(maxHp*agkMult('hp'));
+  if(F && F.mode==='agk' && !isP1){ const d=agkEnemyScale(); maxHp=Math.round(maxHp*(1+0.22*(d-1))); }
   return {char,el,x,facing,vy:0,y:0,hp:maxHp,maxHp,
     attacking:false,blocking:false,crouching:false,hitlock:0,atkCd:0,onGround:true,isP1,
     dodgeMisses:0, ult:0, ultUsed:false, lowHpUltGiven:false, isAssist:false, state:'idle'};
@@ -938,6 +1182,11 @@ function startFight(){
     if(!selected) return;
     F={mode:'endless',p1char:selected,p2char:null,round:1,wins1:0,wins2:0,boss:false,difficulty:currentDifficulty,endlessRound:1,endlessScore:0,carryHp:null,carryUlt:0};
     F.p2char=pickEndlessOpponent();
+  }else if(gameMode==='agk'){
+    if(!selected) return;
+    agkInit();
+    agkShow('AGK Dünyası başladı. Önce derste soru çöz!');
+    return;
   }else{
     if(!selected) return;
     const campaign=CHARS.filter(c=>c.id!==selected.id); // final öncesi herkesle sırayla dövüş
@@ -956,6 +1205,9 @@ function rematch(){
   }else if(F.mode==='endless'){
     F={...F,round:1,wins1:0,wins2:0,boss:false,difficulty:currentDifficulty,endlessRound:1,endlessScore:0,carryHp:null,carryUlt:0};
     F.p2char=pickEndlessOpponent();
+  }else if(F.mode==='agk'){
+    agkShow('AGK Dünyası’na geri döndün. Yeni dövüş seçebilirsin.');
+    return;
   }else{
     F={...F,stage:0,p2char:F.campaign?F.campaign[0]:F.p2char,round:1,wins1:0,wins2:0,boss:false,finalChallenge:false,finalIndex:0,finalQueue:[],difficulty:currentDifficulty};
   }
@@ -976,11 +1228,11 @@ function startRound(){
   }
   setFacing(F.p1,1); setFacing(F.p2,-1);
   F.timer=60; F.running=false; F.over=false;
-  document.getElementById('p1name').textContent=F.mode==='local'?`${F.p1char.name} (P1)`:(F.mode==='endless'?`${F.p1char.name} • Raund ${F.endlessRound}`:F.p1char.name);
-  document.getElementById('p2name').textContent=F.mode==='local'?`${F.p2char.name} (P2)`:(F.mode==='endless'?`${F.p2char.name} (Sonsuz)`:(F.finalChallenge?`${F.p2char.name} (Son Teneffüs ${F.finalIndex+1}/2)`:(F.boss?'Gökşen Hoca 👑':`${F.p2char.name} (${(F.stage||0)+1}/${F.campaign?F.campaign.length:1})`)));
+  document.getElementById('p1name').textContent=F.mode==='local'?`${F.p1char.name} (P1)`:(F.mode==='endless'?`${F.p1char.name} • Raund ${F.endlessRound}`:(F.mode==='agk'?`${F.p1char.name} • AGK Gün ${AGK?AGK.day:1}`:F.p1char.name));
+  document.getElementById('p2name').textContent=F.mode==='local'?`${F.p2char.name} (P2)`:(F.mode==='endless'?`${F.p2char.name} (Sonsuz)`:(F.mode==='agk'?`${F.p2char.name} (Zorluk ${F.agkDiff})`:(F.finalChallenge?`${F.p2char.name} (Son Teneffüs ${F.finalIndex+1}/2)`:(F.boss?'Gökşen Hoca 👑':`${F.p2char.name} (${(F.stage||0)+1}/${F.campaign?F.campaign.length:1})`))));
   F.assists=[];
   updateHP(); updateTimer(); updatePips(); updateUlt();
-  banner(F.mode==='endless'?`SONSUZ ${F.endlessRound}`:(F.finalChallenge?'SON TENEFFÜS!':(F.boss?'DİKKAT! BOSS!':'HAZIR?')), ()=>{
+  banner(F.mode==='endless'?`SONSUZ ${F.endlessRound}`:(F.mode==='agk'?`AGK ZORLUK ${F.agkDiff}`:(F.finalChallenge?'SON TENEFFÜS!':(F.boss?'DİKKAT! BOSS!':'HAZIR?'))), ()=>{
     if(F.boss){ bossSequence(); return; }
     banner('DÖVÜŞ!', ()=>{ F.running=true; });
     F.running=false;
@@ -1264,6 +1516,7 @@ function checkHit(att,def){
       const activeDifficulty=F.difficulty||currentDifficulty;
       if(!att.isP1 && F.mode!=='local') dmg=Math.round(dmg*((DIFFICULTY[activeDifficulty]||DIFFICULTY.normal).damage));   // AI hasarı zorluğa göre değişir
       if(!att.isP1 && F.mode==='endless') dmg=Math.round(dmg*(1+0.08*endlessScale()));
+      if(!att.isP1 && F.mode==='agk') dmg=Math.round(dmg*(1+0.16*(agkEnemyScale()-1)));
       if(att.isP1 && activeDifficulty==='nightmare') dmg=Math.max(1,Math.round(dmg*0.72)); // Kabus'ta rakip daha dayanıklı
       // Hem oyuncu hem rakip saldırırken %10 kritik vurabilir
       const critical = Math.random() < fighterStat(att,'crit',CRIT_CHANCE);
@@ -1349,10 +1602,10 @@ function useUltimate(f){
   const foe=getOpponent(f);
   showFx(f,'⚡ '+ultName(id),-48);
   if(id==='demir'){
-    f.ultPowerUntil=performance.now()+7000;
+    f.ultPowerUntil=performance.now()+Math.round(7000*agkUltMult(f));
     showFx(f,'HASAR +%50!',-20);
   }else if(id==='batu'){
-    f.ultRapidUntil=performance.now()+5000;
+    f.ultRapidUntil=performance.now()+Math.round(5000*agkUltMult(f));
     showFx(f,'HIZLI SALDIRI!',-20);
   }else if(id==='basri'){
     summonAssist(f);
@@ -1363,7 +1616,7 @@ function useUltimate(f){
   }else if(id==='cinar'){
     f.hp=f.maxHp; showFx(f,'CAN FULL! 💚',-20); updateHP();
   }else if(id==='ati'){
-    f.ultLuckUntil=performance.now()+8000;
+    f.ultLuckUntil=performance.now()+Math.round(8000*agkUltMult(f));
     showFx(f,'ŞANS x3!',-20);
   }
   return true;
@@ -1467,6 +1720,11 @@ function roundEnd(p1won){
   setTimeout(()=>{
     if(F.mode==='endless'){
       if(p1won) advanceEndless();
+      else endFight(false, false);
+      return;
+    }
+    if(F.mode==='agk'){
+      if(p1won) agkAdvanceAfterWin();
       else endFight(false, false);
       return;
     }
@@ -1576,6 +1834,10 @@ function endFight(won, escaped){
     t.textContent='SONSUZ KAPIŞMA BİTTİ!'; t.className=score>0?'win':'lose';
     p.innerHTML=`Dayanılan raund: <b>${score}</b><br>En iyi skor: <b>${best}</b>`;
     sfxLose();
+  }else if(F.mode==='agk'){
+    t.textContent='AGK DÖVÜŞÜ KAYBEDİLDİ'; t.className='lose';
+    p.innerHTML='Kıyafetlerini değiştirip daha uygun zorluk seçebilirsin.<br>AGK Dünyası devam ediyor.';
+    sfxLose();
   }else if(escaped){
     t.textContent='GÖKŞEN HOCA GELDİ'; t.className='win';
     p.innerHTML='Kapışma sona erdi.<br>Sınıf dağıldı!';
@@ -1605,6 +1867,11 @@ function updatePips(){
   if(F.mode==='endless'){
     document.getElementById('roundPips').innerHTML=`<span class="pip win"></span><span style="color:#fff;font-size:12px;text-shadow:1px 1px 0 #000">${F.endlessScore||0}</span>`;
     document.getElementById('roundPips2').innerHTML='';
+    return;
+  }
+  if(F.mode==='agk'){
+    document.getElementById('roundPips').innerHTML=`<span style="color:#fff;font-size:12px;text-shadow:1px 1px 0 #000">Gün ${AGK?AGK.day:1}</span>`;
+    document.getElementById('roundPips2').innerHTML=`<span style="color:#fff;font-size:12px;text-shadow:1px 1px 0 #000">Z${F.agkDiff||1}</span>`;
     return;
   }
   const mk=(n,w)=>{let s='';for(let i=0;i<2;i++)s+=`<span class="pip ${i<w?'win':''}"></span>`;return s;};
