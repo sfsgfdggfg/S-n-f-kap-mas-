@@ -1,17 +1,17 @@
 # Değişiklik Günlüğü
 
-## v110
+## v115
 
-- Ayarlar menüsüne **HP Sayıları** seçeneği eklendi.
-- HP barlarının yanında mevcut ve maksimum HP sayıları gösterilebiliyor.
-- Ayarlar menüsüne **Hasar Sayıları** seçeneği eklendi.
-- İsabetlerde verilen hasar, dövüş yazısı olarak gösterilebiliyor.
-- Her iki ayar da tarayıcıda kalıcı olarak saklanıyor.
-
-## v109
-
-- Zorluk seviyelerine göre Meta puanı çarpanları eklendi.
-- Kolay, Orta, Zor ve Kabus için raund üssü ve log toplamı bonusları ayrıldı.
-- Oyunun Matematiği bölümü yeni Meta formülüyle güncellendi.
-
-Önceki geliştirme geçmişi, tek HTML dosyası içindeki oyun sürümleri üzerinden ilerlemiştir.
+- Meta Çekirdeği efsanevi challenge kartı eklendi.
+- Meta Ustası challenge'ı eklendi.
+- Güç düğümüne 25, 50, 100 ve 250 Meta veren özel kartlar eklendi.
+- Meta Çekirdeği, koşu sonu Meta'sını ve Meta kartı ödüllerini artırır.
+- Meta kartları Hazır Strateji, Defter Planı ve Eleme Listesi sistemlerinin dışında tutuldu.
+- Efsanevi kalıcı kart challenge ödülleri seviyeye göre +1, +2, +3, +4, +5 olarak ölçeklendi.
+- Seviye 5 tekrar ödülü +1 kart olarak ayarlandı.
+- Eski kayıtlar için tamamlanan challenge seviyesine göre tek seferlik kart telafisi eklendi.
+- Challenge ödül metinlerindeki çift +1 gösterimi düzeltildi.
+- Oyunun Matematiği bölümü yeni Meta sistemi ve güncel challenge kurallarıyla yenilendi.
+- İçindekiler taşma sorunu düzeltildi.
+- Mobil oyuncular için büyük ekran uyarısı eklendi.
+- Nasıl Oynanır ekranı kaydırılabilir hâle getirildi.
