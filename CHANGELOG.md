@@ -1,5 +1,13 @@
 # Değişiklik Günlüğü
 
+## v110
+
+- Ayarlar menüsüne **HP Sayıları** seçeneği eklendi.
+- HP barlarının yanında mevcut ve maksimum HP sayıları gösterilebiliyor.
+- Ayarlar menüsüne **Hasar Sayıları** seçeneği eklendi.
+- İsabetlerde verilen hasar, dövüş yazısı olarak gösterilebiliyor.
+- Her iki ayar da tarayıcıda kalıcı olarak saklanıyor.
+
 ## v109
 
 - Zorluk seviyelerine göre Meta puanı çarpanları eklendi.

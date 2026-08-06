@@ -49,7 +49,7 @@ GitHub Pages adresine geçildiğinde, daha önce `file://` üzerinden oluşan ka
 
 ## Sürüm
 
-Bu depo ilk olarak `v109` sürümüyle hazırlanmıştır.
+Güncel GitHub Pages sürümü: `v110`.
 
 ## Lisans
 
