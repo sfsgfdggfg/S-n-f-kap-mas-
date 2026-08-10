@@ -1,5 +1,15 @@
 # Değişiklik Günlüğü
 
+## v140
+
+- v139 kaynak dosyası GitHub Pages için güncel `index.html` yapıldı.
+- Ayarlara tüm Sınıf Kapışması kayıtlarını JSON olarak dışa ve içe aktarma eklendi.
+- İçe aktarma sırasında dosya doğrulaması, kullanıcı onayı ve hata hâlinde eski kaydı geri alma koruması eklendi.
+- Ana menü ve kredilere sürüm göstergesi eklendi.
+- Ana menüdeki tek kişilik kontrol açıklaması gerçek Z/X/C/V tuşlarıyla eşleştirildi.
+- Emin'in öldürmemesi gereken ultisinin Sonsuz+ ulti çarpanıyla rakibi yanlışlıkla öldürebilmesi düzeltildi.
+- Oyunun Matematiği bölümünde yalnız efsanevi challenge kartlarının seviyeye göre ölçeklendiği netleştirildi.
+
 ## v115
 
 - Meta Çekirdeği efsanevi challenge kartı eklendi.

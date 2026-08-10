@@ -8,6 +8,10 @@ GitHub Pages üzerinden `index.html` açılır.
 
 ## Sürüm
 
-v115
+v140
 
-Bu sürümde Meta Ustası, Meta Çekirdeği, Güç düğümü Meta kartları, efsanevi challenge ödül ölçeklemesi, eski kayıt telafisi, güncellenmiş Oyunun Matematiği bölümü ve mobil ekran uyarısı bulunur.
+Bu sürüm, v139'daki güncel hikâye ve oyun sistemlerini ana sayfaya taşır. Ayarlardan bütün ilerlemeyi JSON olarak yedekleme/geri yükleme, sürüm göstergesi ve çeşitli tutarlılık düzeltmeleri eklenmiştir.
+
+## Kayıt taşıma
+
+`Ayarlar → Kayıt Yedeği` bölümünden Meta, challenge, rekor, hikâye, özel karakter ve ayar verilerini indirebilir; başka bir bilgisayarda aynı bölümden geri yükleyebilirsin.
